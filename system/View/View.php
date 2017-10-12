@@ -20,6 +20,7 @@ class View
      */
     protected static $shared = array();
 
+
     /**
      * Constructor
      * @param mixed $path

@@ -94,7 +94,7 @@ class Router
         }
 
         // If we reached there, no route was found for the current request.
-        return View::make('Errors/404');
+        return View::make('Errors/404')->render();
     }
 
     protected function compileRoute($route)
