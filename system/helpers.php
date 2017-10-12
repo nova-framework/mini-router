@@ -1,5 +1,18 @@
 <?php
 
+use System\Config\Config;
+
+
+/**
+ * Site URL helper
+ * @param string $path
+ * @return string
+ */
+function site_url($path = '/')
+{
+    return Config::get('app.path') .ltrim($path, '/');
+}
+
 /**
  * Get an item from an array using "dot" notation.
  *
