@@ -24,6 +24,7 @@ require BASEPATH .'vendor' .DS .'autoload.php';
 
 use System\Routing\Router;
 
+
 Router::get('/', 'App\Controllers\Sample@index');
 
 Router::get('pages/{slug?}', 'App\Controllers\Sample@page');
