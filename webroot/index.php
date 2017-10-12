@@ -35,4 +35,5 @@ Router::get('blog/{slug:all}', 'App\Controllers\Sample@post');
 // Dispatch the request.
 $response = Router::dispatch();
 
+// Output the response.
 echo $response;
