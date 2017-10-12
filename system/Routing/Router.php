@@ -137,7 +137,9 @@ class Router
             static::$instance = new static;
         }
 
-        if (in_array(strtoupper($method), static::$methods)) {
+        $httpMethod = strtoupper($method);
+
+        if (in_array($httpMethod, static::$methods)) {
             array_unshift($parameters, array($method));
 
             $method = 'match';
