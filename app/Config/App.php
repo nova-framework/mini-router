@@ -27,6 +27,7 @@ return array(
      */
     'aliases' => array(
         'Config' => 'System\Config\Config',
+        'DB'     => 'System\Database\Manager',
         'Route'  => 'System\Routing\Router',
         'View'   => 'System\View\View',
     ),
