@@ -33,7 +33,14 @@ class Router
     );
 
 
-    protected function match(array $methods, $path, $action)
+    protected function any($route, $action)
+    {
+        $methods = array('GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE');
+
+        return $this->match($methods, $route, $action);
+    }
+
+    protected function match(array $methods, $route, $action)
     {
         $methods = array_map('strtoupper', $methods);
 
@@ -46,7 +53,7 @@ class Router
                 continue;
             }
 
-            $this->routes[$method][$path] = $action;
+            $this->routes[$method][$route] = $action;
         }
     }
 
