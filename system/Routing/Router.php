@@ -2,6 +2,7 @@
 
 namespace System\Routing;
 
+use Closure;
 use LogicException;
 
 
@@ -62,7 +63,7 @@ class Router
         // Get the registered routes for the current HTTP method.
         $routes = isset($this->routes[$method]) ? $this->routes[$method] : array();
 
-        foreach ($routes as $route => $action) {
+        foreach ($routes as $route => $callback) {
             list ($pattern, $variables) = $this->compileRoute($route);
 
             // Match the route pattern against the URI.
@@ -76,8 +77,12 @@ class Router
 
             }, ARRAY_FILTER_USE_KEY);
 
+            if ($callback instanceof Closure) {
+                return call_user_func_array($callback, $parameters);
+            }
+
             // Execute the Controller's Action.
-            list ($controller, $method) = explode('@', $action);
+            list ($controller, $method) = explode('@', $callback);
 
             if (! method_exists($instance = new $controller(), $method)) {
                 throw new LogicException("Controller [$controller] has no method named [$method].");
@@ -87,7 +92,7 @@ class Router
         }
 
         // If we reached there, no route was found for the current request.
-        echo "<h1>Page not found (404)</h1>";
+        return "<h1>Page not found (404)</h1>";
     }
 
     protected function compileRoute($route)

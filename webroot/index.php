@@ -32,5 +32,7 @@ Router::get('pages/{slug?}', 'App\Controllers\Sample@page');
 Router::get('blog/{slug:all}', 'App\Controllers\Sample@post');
 
 
-// Dispatch the HTTP request.
-Router::dispatch();
+// Dispatch the request.
+$response = Router::dispatch();
+
+echo $response;
