@@ -71,6 +71,20 @@ class Connection
     }
 
     /**
+     * Run a select statement and return a single result.
+     *
+     * @param  string  $query
+     * @param  array   $bindings
+     * @return mixed
+     */
+    public function selectOne($query, $bindings = array())
+    {
+        $records = $this->select($query, $bindings);
+
+        return (count($records) > 0) ? reset($records) : null;
+    }
+
+    /**
      * Run a select statement against the database.
      *
      * @param  string  $query
