@@ -86,7 +86,12 @@ class Router
             // Execute the Controller's Action.
             list ($controller, $method) = explode('@', $callback);
 
-            if (! method_exists($instance = new $controller(), $method)) {
+            if (! class_exists($controller)) {
+                throw new LogicException("Controller [$controller] does not exists.");
+            }
+
+            // Create the Controller instance and check for its method.
+            else if (! method_exists($instance = new $controller(), $method)) {
                 throw new LogicException("Controller [$controller] has no method named [$method].");
             }
 
