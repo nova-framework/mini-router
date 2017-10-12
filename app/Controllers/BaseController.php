@@ -42,7 +42,7 @@ class BaseController extends Controller
             $view = ucfirst($this->action);
         }
 
-        $view = $this->getViewPath() .$view;
+        $view = $this->getViewPath() .'/' .$view;
 
         return View::make($view, $data);
     }
@@ -56,7 +56,7 @@ class BaseController extends Controller
         $classPath = str_replace('\\', '/', static::class);
 
         if (preg_match('#^App/Controllers/(.*)$#', $classPath, $matches) === 1) {
-            return $this->viewPath = $matches[1] .DS;
+            return $this->viewPath = $matches[1];
         }
 
         throw new BadMethodCallException('Invalid Controller namespace');
