@@ -111,7 +111,7 @@ class View
      * @param  mixed   $value
      * @return void
      */
-    public static function share($key, $value)
+    public static function share($key, $value = null)
     {
         if (! is_array($key)) {
             return static::$shared[$key] = $value;
