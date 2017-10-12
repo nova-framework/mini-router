@@ -134,7 +134,7 @@ class Router
     public static function __callStatic($method, $parameters)
     {
         if (! isset(static::$instance)) {
-            static::$instance = new static;
+            static::$instance = new static();
         }
 
         $key = strtoupper($method);
