@@ -36,9 +36,9 @@ class Router
         }
     }
 
-    protected function match($methods, $path, $action)
+    protected function match(array $methods, $path, $action)
     {
-        $methods = array_map('strtoupper', (array) $methods);
+        $methods = array_map('strtoupper', $methods);
 
         if (in_array('GET', $methods) && ! in_array('HEAD', $methods)) {
             $methods[] = 'HEAD';
@@ -138,7 +138,7 @@ class Router
         }
 
         if (in_array(strtoupper($method), static::$methods)) {
-            array_unshift($parameters, $method);
+            array_unshift($parameters, array($method));
 
             $method = 'match';
         }
