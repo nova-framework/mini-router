@@ -31,7 +31,7 @@ use System\View\View;
 foreach (glob(APPPATH .'Config/*.php') as $path) {
     $key = lcfirst(pathinfo($path, PATHINFO_FILENAME));
 
-    Config::set($key, include_once($path));
+    Config::set($key, require_once($path));
 }
 
 // Load the Class Aliases.
