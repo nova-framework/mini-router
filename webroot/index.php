@@ -22,21 +22,28 @@ require BASEPATH .'vendor' .DS .'autoload.php';
 // Run The Application
 //--------------------------------------------------------------------------
 
+use System\Config\Config;
+use System\Foundation\AliasLoader;
 use System\Routing\Router;
 use System\View\View;
 
+// Load the configuration
+foreach (glob(APPPATH .'Config/*.php') as $path) {
+    $key = lcfirst(pathinfo($path, PATHINFO_FILENAME));
 
-Router::get('/', 'App\Controllers\Sample@index');
+    Config::set($key, include_once($path));
+}
 
-Router::get('pages/{slug?}', 'App\Controllers\Sample@page');
+// Load the Class Aliases.
+AliasLoader::initialize();
 
-Router::get('blog/{slug:all}', 'App\Controllers\Sample@post');
-
+// Load the Routes.
+require APPPATH .'Routes.php';
 
 // Dispatch the request.
 $response = Router::dispatch();
 
-// Output the routing response.
+// Output the response from Router.
 if ($response instanceof View) {
     $response = $response->render();
 }

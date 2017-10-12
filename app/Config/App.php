@@ -26,6 +26,8 @@ return array(
      * The registered Class Aliases.
      */
     'aliases' => array(
-        //
+        'Config' => 'System\Config\Config',
+        'Route'  => 'System\Routing\Router',
+        'View'   => 'System\View\View',
     ),
-)
+);
