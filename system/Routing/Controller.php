@@ -5,6 +5,8 @@ namespace System\Routing;
 
 class Controller
 {
+    protected $action;
+
 
     public function before()
     {
@@ -18,6 +20,8 @@ class Controller
 
     public function callAction($method, array $parameters)
     {
+        $this->action = $method;
+
         if (! is_null($response = $this->before())) {
             return $response;
         }

@@ -2,15 +2,19 @@
 
 namespace App\Controllers;
 
-use System\Routing\Controller;
+use App\Controllers\BaseController;
 
 
-class Sample extends Controller
+class Sample extends BaseController
 {
 
     public function index()
     {
-        return '</pre>This is the Homepage</pre>';
+        $content = 'This is the Homepage';
+
+        return $this->createView()
+            ->shares('title', 'Homepage')
+            ->with('content', $content);
     }
 
     public function page($slug = null)

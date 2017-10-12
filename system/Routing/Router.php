@@ -101,7 +101,6 @@ class Router
     {
         $pattern = '/' .trim($route, '/');
 
-        //
         $optionals = 0;
 
         $variables = array();
