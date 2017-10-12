@@ -22,22 +22,16 @@ class Router
      *
      * @var array
      */
-    protected $routes;
+    protected $routes = array(
+        'GET'     => array(),
+        'HEAD'    => array(),
+        'POST'    => array(),
+        'PUT'     => array(),
+        'PATCH'   => array(),
+        'DELETE'  => array(),
+        'OPTIONS' => array(),
+    );
 
-    /**
-     * An array of HTTP request methods.
-     *
-     * @var array
-     */
-    public static $methods = array('GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS');
-
-
-    protected function __construct()
-    {
-        foreach (static::$methods as $method) {
-            $this->routes[$method] = array();
-        }
-    }
 
     protected function match(array $methods, $path, $action)
     {
@@ -48,7 +42,7 @@ class Router
         }
 
         foreach ($methods as $method) {
-            if (! in_array($method, static::$methods)) {
+            if (! array_key_exists($method, $this->routes)) {
                 continue;
             }
 
@@ -142,20 +136,25 @@ class Router
         return array($regexp, $variables);
     }
 
-    public static function __callStatic($method, $parameters)
+    public static function getInstance()
     {
-        if (! isset(static::$instance)) {
-            static::$instance = new static();
+        if (isset(static::$instance)) {
+            return static::$instance;
         }
 
-        $key = strtoupper($method);
+        return static::$instance = new static();
+    }
 
-        if (in_array($key, static::$methods)) {
-            array_unshift($parameters, array($method));
+    public static function __callStatic($method, $parameters)
+    {
+        $instance = static::getInstance();
+
+        if (array_key_exists($httpMethod = strtoupper($method), $instance->routes)) {
+            array_unshift($parameters, array($httpMethod));
 
             $method = 'match';
         }
 
-        return call_user_func_array(array(static::$instance, $method), $parameters);
+        return call_user_func_array(array($instance, $method), $parameters);
     }
 }
