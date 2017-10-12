@@ -33,7 +33,7 @@ use System\Foundation\AliasLoader;
 use System\Routing\Router;
 use System\View\View;
 
-// Load the configuration
+// Load the configuration files.
 foreach (glob(APPPATH .'Config/*.php') as $path) {
     $key = lcfirst(pathinfo($path, PATHINFO_FILENAME));
 
