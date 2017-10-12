@@ -31,5 +31,6 @@ Router::get('pages/{slug?}', 'App\Controllers\Sample@page');
 
 Router::get('blog/{slug:all}', 'App\Controllers\Sample@post');
 
-// Dispatch the request.
+
+// Dispatch the HTTP request.
 Router::dispatch();
