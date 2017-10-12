@@ -2,6 +2,8 @@
 
 namespace System\Routing;
 
+use System\View\View;
+
 use Closure;
 use LogicException;
 
@@ -88,11 +90,11 @@ class Router
                 throw new LogicException("Controller [$controller] has no method named [$method].");
             }
 
-            return call_user_func_array(array($instance, $method), $parameters);
+            return $instance->callAction($method, $parameters);
         }
 
         // If we reached there, no route was found for the current request.
-        return "<h1>Page not found (404)</h1>";
+        return View::make('Errors/404');
     }
 
     protected function compileRoute($route)

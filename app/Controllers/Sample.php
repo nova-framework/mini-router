@@ -2,22 +2,24 @@
 
 namespace App\Controllers;
 
+use System\Routing\Controller;
 
-class Sample
+
+class Sample extends Controller
 {
 
     public function index()
     {
-        echo '</pre>This is the Homepage</pre>';
+        return '</pre>This is the Homepage</pre>';
     }
 
     public function page($slug = null)
     {
-        echo '</pre>URI: ' .var_export($slug, true) .'</pre>';
+        return '</pre>URI: ' .var_export($slug, true) .'</pre>';
     }
 
     public function post($slug = null)
     {
-        echo '</pre>URI: ' .var_export($slug, true) .'</pre>';
+        return '</pre>URI: ' .var_export($slug, true) .'</pre>';
     }
 }
