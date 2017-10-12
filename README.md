@@ -4,9 +4,13 @@
 
 Download repo unzip and configure `app/Config/App.php` and `app/Config/Database.php`
 
-## Run using php's web server
+## Install composer
 
-Navigate to the project in terminal and enter
+```
+composer install
+```
+
+## Run using php's web server
 
 ```
 php -S localhost:8000 -t webroot
