@@ -3,3 +3,4 @@
 # Framework specific
 vendor/
 composer.lock
+composer.phar
