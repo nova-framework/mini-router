@@ -61,7 +61,8 @@ class Connection
         $dsn = "$driver:host={$hostname};dbname={$database}";
 
         $options = array(
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => $this->fetchMode,
             PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES {$charset} COLLATE {$collation}"
         );
 
@@ -212,5 +213,8 @@ class Connection
     public function setFetchMode($fetchMode)
     {
         $this->fetchMode = $fetchMode;
+
+        //
+        $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, $fetchMode);
     }
 }
