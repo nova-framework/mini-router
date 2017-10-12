@@ -8,6 +8,7 @@
 
 namespace System\sDatabase;
 
+use System\Config\Config;
 use System\Database\Connection;
 
 use Exception;

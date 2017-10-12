@@ -8,8 +8,6 @@
 
 namespace System\Database;
 
-use System\Config\Config;
-
 use \PDO;
 
 
