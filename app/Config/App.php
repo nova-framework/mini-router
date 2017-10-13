@@ -9,7 +9,7 @@ return array(
     /**
      * The Website URL.
      */
-    'url' => 'http://www.novaframework.dev/',
+    'url' => 'http://www.miniframework.dev/',
 
     /**
      * Website Name.
