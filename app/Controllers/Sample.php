@@ -48,7 +48,9 @@ class Sample extends BaseController
         $content .= '<pre>' .var_export($user, true) .'</pre>';
 
         //
-        $id = DB::table('users')->insertGetId(array(
+        $query = DB::table('users');
+
+        $id = $query->insertGetId(array(
             'username'  => 'testuser',
             'password'  => 'password',
             'realname'  => 'Test User',
@@ -56,6 +58,7 @@ class Sample extends BaseController
             'activated' => 0,
         ));
 
+        $content .= '<pre>' .var_export($query->getLastQuery(), true) .'</pre>';
         $content .= '<pre>' .var_export($id, true) .'</pre>';
 
         //

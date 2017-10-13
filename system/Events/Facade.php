@@ -1,6 +1,6 @@
 <?php
 
-namespace System\Database;
+namespace System\Events;
 
 use System\Events\Dispatcher;
 
