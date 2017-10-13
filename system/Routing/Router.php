@@ -98,7 +98,7 @@ class Router
             throw new LogicException("Controller [$controller] does not exists.");
         }
 
-        // Create a Controller instance and check for the requested method.
+        // Create a Controller instance and check its method existence.
         else if (! method_exists($instance = new $controller(), $method)) {
             throw new LogicException("Controller [$controller] has no method [$method].");
         }

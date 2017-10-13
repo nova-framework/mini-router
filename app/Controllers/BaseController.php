@@ -11,21 +11,39 @@ use BadMethodCallException;
 class BaseController extends Controller
 {
     /**
+     * The currently requested Action.
+     *
+     * @var string
+     */
+    protected $action;
+
+    /**
      * The currently used Layout.
      *
      * @var string
      */
     protected $layout = 'Default';
 
-    /**
-     * The current View path.
-     *
-     * @var string
-     */
-    protected $viewPath;
 
+    public function callAction($method, array $parameters)
+    {
+        $this->action = $method;
 
-    public function after($response)
+        if (! is_null($response = $this->before())) {
+            return $response;
+        }
+
+        $response = call_user_func_array(array($this, $method), $parameters);
+
+        return $this->after($response);
+    }
+
+    protected function before()
+    {
+        //
+    }
+
+    protected function after($response)
     {
         if (($response instanceof View) && ! empty($this->layout)) {
             $view = 'Layouts/' .$this->layout;
@@ -42,21 +60,12 @@ class BaseController extends Controller
             $view = ucfirst($this->action);
         }
 
-        $view = $this->getViewPath() .'/' .$view;
-
-        return View::make($view, $data);
-    }
-
-    protected function getViewPath()
-    {
-        if (isset($this->viewPath)) {
-            return $this->viewPath;
-        }
-
         $classPath = str_replace('\\', '/', static::class);
 
         if (preg_match('#^App/Controllers/(.*)$#', $classPath, $matches) === 1) {
-            return $this->viewPath = $matches[1];
+            $view = $matches[1] .'/' .$view;
+
+            return View::make($view, $data);
         }
 
         throw new BadMethodCallException('Invalid Controller namespace');
