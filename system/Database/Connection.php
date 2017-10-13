@@ -70,7 +70,7 @@ class Connection
             // The default fetch mode.
             PDO::ATTR_DEFAULT_FETCH_MODE => $this->getFetchMode(),
 
-            // For MySQL:
+            // The MySQL init command.
             PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES {$charset}" .(! is_null($collation) ? " COLLATE '$collation'" : ''),
         );
 
