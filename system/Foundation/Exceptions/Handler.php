@@ -131,7 +131,7 @@ class Handler
     protected function renderResponse($e)
     {
         if ($this->debug) {
-            $message = sprintf("<p>%s in %s on line %d</p>", $e->getMessage(), $e->getFile(), $e->getLine());
+            $message = sprintf('<p>%s in %s on line %d</p>', $e->getMessage(), $e->getFile(), $e->getLine());
         } else {
             $message = '<p>Whoops! An error occurred.</p>';
         }
