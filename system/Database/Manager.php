@@ -6,7 +6,7 @@
  * @version 3.0
  */
 
-namespace System\sDatabase;
+namespace System\Database;
 
 use System\Config\Config;
 use System\Database\Connection;

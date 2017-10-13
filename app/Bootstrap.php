@@ -1,6 +1,7 @@
 <?php
 
 use System\Config\Config;
+use System\Foundation\Exceptions\Handler as ExceptionHandler;
 use System\Foundation\AliasLoader;
 use System\Routing\Router;
 use System\View\View;
@@ -26,6 +27,9 @@ foreach (glob(APPPATH .'Config/*.php') as $path) {
 $timezone = Config::get('app.timezone');
 
 date_default_timezone_set($timezone);
+
+// Initialize the Exceptions Handler.
+ExceptionHandler::initialize();
 
 // Load the Class Aliases.
 AliasLoader::initialize();
