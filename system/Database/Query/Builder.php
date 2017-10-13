@@ -387,30 +387,30 @@ class Builder
 
         // Wheres
         if (! empty($this->wheres)) {
-            $sql = array();
+            $wheres = array();
 
             foreach ($this->wheres as $where) {
-                $column = $where['column'];
+                $param = ":{$where['column']}";
 
-                $sql[] = strtoupper($where['boolean']) .' ' .$this->wrap($column) .' ' .$where['operator'] .' :' .$column;
+                $wheres[] = strtoupper($where['boolean']) .' ' .$this->wrap($where['column']) .' ' .$where['operator'] .' ' .$param;
 
-                $this->params[":{$column}"] = $where['value'];
+                $this->params[$param] = $where['value'];
             }
 
-            if (count($sql) > 0) {
-                $query .= ' WHERE ' .preg_replace('/AND |OR /', '', implode(' ', $sql), 1);
+            if (count($wheres) > 0) {
+                $query .= ' WHERE ' .preg_replace('/AND |OR /', '', implode(' ', $wheres), 1);
             }
         }
 
         // Orders
         if (! empty($this->orders)) {
-            $sql = array();
+            $orders = array();
 
             foreach ($this->orders as $order) {
-                $sql[] = $this->wrap($order['column']) .' ' .$order['direction'];
+                $orders[] = $this->wrap($order['column']) .' ' .$order['direction'];
             }
 
-            $query .= ' ORDER BY ' .implode(', ', $sql);
+            $query .= ' ORDER BY ' .implode(', ', $orders);
         }
 
         // Limits
@@ -426,21 +426,6 @@ class Builder
     }
 
     /**
-     * Wrap a table in keyword identifiers.
-     *
-     * @param  string  $table
-     * @return string
-     */
-    public function wrapTable($table)
-    {
-        if ($this->isExpression($table)) {
-            return $this->getValue($table);
-        }
-
-        return $this->wrap($this->tablePrefix .$table);
-    }
-
-    /**
      * Wrap a value in keyword identifiers.
      *
      * @param  string  $value
@@ -448,8 +433,8 @@ class Builder
      */
     public function wrap($value)
     {
-        if ($this->isExpression($value)) {
-            return $this->getValue($value);
+        if ($value instanceof Expression) {
+            return $value->getValue();
         }
 
         if (strpos(strtolower($value), ' as ') !== false) {
@@ -474,6 +459,21 @@ class Builder
     }
 
     /**
+     * Wrap a table in keyword identifiers.
+     *
+     * @param  string  $table
+     * @return string
+     */
+    public function wrapTable($table)
+    {
+        if ($table instanceof Expression) {
+            return $table->getValue();
+        }
+
+        return $this->wrap($this->tablePrefix .$table);
+    }
+
+    /**
      * Wrap a single string in keyword identifiers.
      *
      * @param  string  $value
@@ -486,28 +486,6 @@ class Builder
         }
 
         return '`'.str_replace('`', '``', $value).'`';
-    }
-
-    /**
-     * Get the value of a raw expression.
-     *
-     * @param  \System\Database\Query\Expression  $expression
-     * @return string
-     */
-    public function getValue($expression)
-    {
-        return $expression->getValue();
-    }
-
-    /**
-     * Determine if the given value is a raw expression.
-     *
-     * @param  mixed  $value
-     * @return bool
-     */
-    public function isExpression($value)
-    {
-        return $value instanceof Expression;
     }
 
     /**
