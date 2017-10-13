@@ -34,12 +34,45 @@ class Sample extends BaseController
         $content = '';
 
         //
-        $users = DB::select('select * from ' .PREFIX .'users');
+        $users = DB::select('select id, username, realname from ' .PREFIX .'users');
 
         $content .= '<pre>' .var_export($users, true) .'</pre>';
 
         //
         $user = DB::selectOne('select * from ' .PREFIX .'users WHERE id = :id', array('id' => 1));
+
+        $content .= '<pre>' .var_export($user, true) .'</pre>';
+
+        //
+        $result = DB::table('users')->where('id', 4)->update(array(
+            'username'  => 'testuser',
+            'realname'  => 'Test User',
+            'email'     => 'test@testuser.dev',
+            'activated' => 1,
+        ));
+
+        $user = DB::selectOne('select * from ' .PREFIX .'users WHERE id = :id', array('id' => 4));
+
+        $content .= '<pre>' .var_export($user, true) .'</pre>';
+
+        //
+        $result = DB::table('users')->where('username', 'testuser2')->delete();
+
+        $content .= '<pre>' .var_export($result, true) .'</pre>';
+
+        //
+        $result = DB::table('users')->insert(array(
+            'username'  => 'testuser2',
+            'password'  => 'testuser2',
+            'realname'  => 'Test User',
+            'email'     => 'test@testuser2.dev',
+            'activated' => 1,
+        ));
+
+        $content .= '<pre>' .var_export($result, true) .'</pre>';
+
+        //
+        $user = DB::table('users')->select('id', 'username', 'realname')->where('username', 'testuser2')->first();
 
         $content .= '<pre>' .var_export($user, true) .'</pre>';
 

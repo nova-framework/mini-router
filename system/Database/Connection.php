@@ -8,6 +8,9 @@
 
 namespace System\Database;
 
+use System\Database\Query\Builder as QueryBuilder;
+use System\Database\Query\Expression;
+
 use \PDO;
 
 
@@ -78,6 +81,30 @@ class Connection
     }
 
     /**
+     * Begin a Fluent Query against a database table.
+     *
+     * @param  string  $table
+     * @return \System\Database\Query\Builder
+     */
+    public function table($table)
+    {
+        $query = new QueryBuilder($this);
+
+        return $query->from($table);
+    }
+
+    /**
+     * Get a new raw query expression.
+     *
+     * @param  mixed  $value
+     * @return \System\Database\Query\Expression
+     */
+    public function raw($value)
+    {
+        return new Expression($value);
+    }
+
+    /**
      * Run a select statement and return a single result.
      *
      * @param  string  $query
@@ -119,22 +146,6 @@ class Connection
     public function insert($query, array $bindings = array())
     {
         return $this->statement($query, $bindings);
-    }
-
-    /**
-     * Run an insert statement against the database.
-     *
-     * @param  string  $query
-     * @param  array   $bindings
-     * @return bool
-     */
-    public function insertGetId($query, array $bindings = array())
-    {
-        $this->statement($query, $bindings);
-
-        $id = $this->getPdo()->lastInsertId();
-
-        return is_numeric($id) ? (int) $id : $id;
     }
 
     /**
