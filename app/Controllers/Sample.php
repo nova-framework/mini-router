@@ -48,14 +48,9 @@ class Sample extends BaseController
         $content .= '<pre>' .var_export($user, true) .'</pre>';
 
         //
-        $result = DB::table('users')->where('username', 'testuser')->delete();
-
-        $content .= '<pre>' .var_export($result, true) .'</pre>';
-
-        //
         $id = DB::table('users')->insertGetId(array(
             'username'  => 'testuser',
-            'password'  => 'testuser',
+            'password'  => 'password',
             'realname'  => 'Test User',
             'email'     => 'test@testuser.dev',
             'activated' => 0,
@@ -73,12 +68,23 @@ class Sample extends BaseController
             'realname'  => 'Test2 User',
             'email'     => 'test2@testuser.dev',
             'activated' => 1,
+
+            //
+            'image'     => 'http://lh4.ggpht.com/7C4cbRPUtLgWxvmEPvNAZeGD5pbGivLZweEzBQU8o5j8NyGz5l-X_dYFwL9p-K1UzBQXjotVZi8PEpW1LUk8ORs=s0',
         ));
 
         //
-        $user = DB::table('users')->select('id', 'username', 'realname', 'email', 'activated')->where('username', 'testuser')->first();
+        $user = DB::table('users')
+            ->select('id', 'username', 'realname', 'email', 'activated', 'image')
+            ->where('username', 'testuser')
+            ->first();
 
         $content .= '<pre>' .var_export($user, true) .'</pre>';
+
+        //
+        $result = DB::table('users')->where('username', 'testuser')->delete();
+
+        $content .= '<pre>' .var_export($result, true) .'</pre>';
 
         return $this->createView(compact('content'), 'Index')
             ->shares('title', 'Database API');
