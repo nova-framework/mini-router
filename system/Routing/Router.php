@@ -155,8 +155,8 @@ class Router
     {
         $instance = static::getInstance();
 
-        if (array_key_exists($httpMethod = strtoupper($method), $instance->routes)) {
-            array_unshift($parameters, array($httpMethod));
+        if (array_key_exists(strtoupper($method), $instance->routes)) {
+            array_unshift($parameters, array($method));
 
             $method = 'match';
         }
