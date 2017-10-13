@@ -85,7 +85,7 @@ class Handler
 
         $this->report($e);
 
-        $this->renderResponse($e);
+        $this->render($e);
     }
 
     /**
@@ -128,7 +128,7 @@ class Handler
      * @param  \Exception  $e
      * @return void
      */
-    protected function renderResponse($e)
+    protected function render($e)
     {
         if ($this->debug) {
             $message = sprintf('<p>%s in %s on line %d</p>', $e->getMessage(), $e->getFile(), $e->getLine());
