@@ -86,7 +86,9 @@ class Connection
      */
     public function selectOne($query, $bindings = array())
     {
-        $statement = $this->statement($query, $bindings);
+        $statement = $this->getPdo()->prepare($query);
+
+        $statement->execute($bindings);
 
         return $statement->fetch($this->getFetchMode()) ?: null;
     }
@@ -100,7 +102,9 @@ class Connection
      */
     public function select($query, array $bindings = array())
     {
-        $statement = $this->statement($query, $bindings);
+        $statement = $this->getPdo()->prepare($query);
+
+        $statement->execute($bindings);
 
         return $statement->fetchAll($this->getFetchMode());
     }
