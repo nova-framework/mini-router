@@ -110,6 +110,20 @@ class Connection
     }
 
     /**
+     * Run an insert statement against the database.
+     *
+     * @param  string  $query
+     * @param  array   $bindings
+     * @return bool
+     */
+    public function insertGetId($query, array $bindings = array())
+    {
+        $this->statement($query, $bindings);
+
+        return $this->getPdo()->lastInsertId();
+    }
+
+    /**
      * Run an update statement against the database.
      *
      * @param  string  $query
