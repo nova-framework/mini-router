@@ -10,7 +10,7 @@ use System\Config\Config;
  */
 function site_url($path = '/')
 {
-    return Config::get('app.path') .ltrim($path, '/');
+    return Config::get('app.url') .ltrim($path, '/');
 }
 
 /**
