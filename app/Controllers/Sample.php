@@ -68,9 +68,6 @@ class Sample extends BaseController
             'realname'  => 'Test2 User',
             'email'     => 'test2@testuser.dev',
             'activated' => 1,
-
-            //
-            'image'     => 'http://lh4.ggpht.com/7C4cbRPUtLgWxvmEPvNAZeGD5pbGivLZweEzBQU8o5j8NyGz5l-X_dYFwL9p-K1UzBQXjotVZi8PEpW1LUk8ORs=s0',
         ));
 
         //
