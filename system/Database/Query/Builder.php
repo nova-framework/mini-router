@@ -393,11 +393,19 @@ class Builder
             $wheres = array();
 
             foreach ($this->wheres as $where) {
-                $param = ":{$where['column']}";
+                $column = $where['column'];
 
-                $wheres[] = strtoupper($where['boolean']) .' ' .$this->wrap($where['column']) .' ' .$where['operator'] .' ' .$param;
+                $value = $where['value'];
 
-                $this->params[$param] = $where['value'];
+                if ($value instanceof Expression) {
+                    $param = $value->getValue();
+                } else {
+                    $param = ":{$column}";
+
+                    $this->params[$param] = $value;
+                }
+
+                $wheres[] = strtoupper($where['boolean']) .' ' .$this->wrap($column) .' ' .$where['operator'] .' ' .$param;
             }
 
             if (count($wheres) > 0) {

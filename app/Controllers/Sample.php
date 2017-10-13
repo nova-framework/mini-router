@@ -34,7 +34,7 @@ class Sample extends BaseController
         $content = '';
 
         //
-        $users = DB::select('select id, username, realname from ' .PREFIX .'users');
+        $users = DB::select('select id, username, realname, email from ' .PREFIX .'users');
 
         $content .= '<pre>' .var_export($users, true) .'</pre>';
 
@@ -43,36 +43,40 @@ class Sample extends BaseController
 
         $content .= '<pre>' .var_export($user, true) .'</pre>';
 
-        //
-        $result = DB::table('users')->where('id', 4)->update(array(
-            'username'  => 'testuser',
-            'realname'  => 'Test User',
-            'email'     => 'test@testuser.dev',
-            'activated' => 1,
-        ));
-
-        $user = DB::selectOne('select * from ' .PREFIX .'users WHERE id = :id', array('id' => 4));
+         $user = DB::selectOne('select * from ' .PREFIX .'users WHERE id = :id', array('id' => 4));
 
         $content .= '<pre>' .var_export($user, true) .'</pre>';
 
         //
-        $result = DB::table('users')->where('username', 'testuser2')->delete();
+        $result = DB::table('users')->where('username', 'testuser')->delete();
 
         $content .= '<pre>' .var_export($result, true) .'</pre>';
 
         //
         $id = DB::table('users')->insertGetId(array(
-            'username'  => 'testuser2',
-            'password'  => 'testuser2',
+            'username'  => 'testuser',
+            'password'  => 'testuser',
             'realname'  => 'Test User',
-            'email'     => 'test@testuser2.dev',
-            'activated' => 1,
+            'email'     => 'test@testuser.dev',
+            'activated' => 0,
         ));
 
         $content .= '<pre>' .var_export($id, true) .'</pre>';
 
         //
-        $user = DB::table('users')->select('id', 'username', 'realname')->where('username', 'testuser2')->first();
+        $user = DB::table('users')->where('username', 'testuser')->first();
+
+        $content .= '<pre>' .var_export($user, true) .'</pre>';
+
+       //
+        $result = DB::table('users')->where('username', 'testuser')->update(array(
+            'realname'  => 'Test2 User',
+            'email'     => 'test2@testuser.dev',
+            'activated' => 1,
+        ));
+
+        //
+        $user = DB::table('users')->select('id', 'username', 'realname', 'email', 'activated')->where('username', 'testuser')->first();
 
         $content .= '<pre>' .var_export($user, true) .'</pre>';
 
