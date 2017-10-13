@@ -2,6 +2,9 @@
 
 namespace System\View;
 
+use BadMethodCallException;
+use Exception;
+
 
 class View
 {
@@ -31,7 +34,7 @@ class View
     protected function __construct($path, $data = array())
     {
         if (! is_readable($path)) {
-            throw new \BadMethodCallException("File path [$path] does not exist");
+            throw new BadMethodCallException("File path [$path] does not exist");
         }
 
         $this->path = $path;
@@ -46,7 +49,7 @@ class View
      * @param mixed $view
      * @param array $data
      *
-     * @return \Core\View
+     * @return \System\View\View
      */
     public static function make($view, $data = array())
     {
@@ -119,7 +122,7 @@ class View
         }
 
         foreach ($key as $innerKey => $innerValue) {
-            static::shares($innerKey, $innerValue);
+            static::share($innerKey, $innerValue);
         }
     }
 
@@ -167,7 +170,7 @@ class View
         try {
             return $this->render();
         }
-        catch (\Exception $e) {
+        catch (Exception $e) {
             return '';
         }
     }
@@ -177,7 +180,7 @@ class View
      *
      * @param  string  $method
      * @param  array   $params
-     * @return \Core\View|static|void
+     * @return \System\View\View|static|void
      *
      * @throws \BadMethodCallException
      */
@@ -190,7 +193,7 @@ class View
             return $this->with($name, array_shift($params));
         }
 
-        throw new \BadMethodCallException("Method [$method] does not exist on " .get_class($this));
+        throw new BadMethodCallException("Method [$method] does not exist on " .get_class($this));
     }
 }
 
