@@ -74,4 +74,3 @@ function array_set(&$array, $key, $value)
 
     return $array;
 }
-
