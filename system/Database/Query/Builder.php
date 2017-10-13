@@ -32,12 +32,19 @@ class Builder
      * Plain data inputs
      */
     protected $columns  = null;
+
     protected $distinct = false;
+
     protected $data     = array();
+
     protected $params   = array();
+
     protected $wheres   = array();
+
     protected $limit    = null;
+
     protected $offset   = null;
+
     protected $orders   = array();
 
     /**
