@@ -55,6 +55,7 @@ class Builder
     /**
      * Create a new Query Builder instance.
      *
+     * @param  \System\Database\Connection $connection
      * @return void
      */
     public function __construct(Connection $connection)
@@ -139,7 +140,7 @@ class Builder
             $this->columns = $columns;
         }
 
-        $sql = $this->compile('select');
+        $sql = $this->compileFor('select');
 
         return $this->connection->select($sql, $this->params);
     }
@@ -154,8 +155,7 @@ class Builder
     {
         $this->data = array_merge($this->data, $data);
 
-        //
-        $sql = $this->compile('insert');
+        $sql = $this->compileFor('insert');
 
         return $this->connection->insert($sql, $data);
     }
@@ -170,7 +170,6 @@ class Builder
     {
         $this->insert($data);
 
-        //
         $id = $this->connection->getPdo()->lastInsertId();
 
         return is_numeric($id) ? (int) $id : $id;
@@ -183,8 +182,7 @@ class Builder
     {
         $this->data = array_merge($this->data, $data);
 
-        //
-        $sql = $this->compile('update');
+        $sql = $this->compileFor('update');
 
         return $this->connection->update($sql, array_merge($this->data, $this->params));
     }
@@ -202,7 +200,7 @@ class Builder
             $this->where('id', '=', $id);
         }
 
-        $sql = $this->compile('delete');
+        $sql = $this->compileFor('delete');
 
         return $this->connection->delete($sql, $this->params);
     }
@@ -322,7 +320,7 @@ class Builder
      *
      * @return string
      */
-    public function compile($type)
+    public function compileFor($type)
     {
         $query = '';
 
@@ -377,7 +375,7 @@ class Builder
 
                 $sql[] = strtoupper($where['boolean']) .' ' .$this->wrap($column) .' ' .$where['operator'] .' :' .$column;
 
-                $this->params[":{$column}"] = $this->parameter($where['value']);
+                $this->params[":{$column}"] = $where['value'];
             }
 
             if (count($sql) > 0) {
@@ -487,17 +485,6 @@ class Builder
     public function isExpression($value)
     {
         return $value instanceof Expression;
-    }
-
-    /**
-     * Get the appropriate query parameter place-holder for a value.
-     *
-     * @param  mixed   $value
-     * @return string
-     */
-    public function parameter($value)
-    {
-        return $this->isExpression($value) ? $this->getValue($value) : $value;
     }
 
     /**

@@ -48,6 +48,8 @@ class Connection
     {
         $this->pdo = $this->createConnection($config);
 
+        $this->setFetchMode($this->fetchMode);
+
         $this->tablePrefix = $config['prefix'];
     }
 
@@ -69,9 +71,6 @@ class Connection
             PDO::ATTR_ORACLE_NULLS       => PDO::NULL_NATURAL,
             PDO::ATTR_STRINGIFY_FETCHES  => false,
             PDO::ATTR_EMULATE_PREPARES   => false,
-
-            // The default fetch mode.
-            PDO::ATTR_DEFAULT_FETCH_MODE => $this->getFetchMode(),
 
             // The MySQL init command.
             PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES {$charset}" .(! is_null($collation) ? " COLLATE '$collation'" : ''),
