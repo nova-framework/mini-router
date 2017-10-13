@@ -142,22 +142,6 @@ class Connection
     }
 
     /**
-     * Insert a new Record and get the value of the primary key.
-     *
-     * @param  string  $query
-     * @param  array   $bindings
-     * @return int
-     */
-    public function insertGetId($query, array $bindings = array())
-    {
-        $this->statement($query, $bindings);
-
-        $id = $this->getPdo()->lastInsertId();
-
-        return is_numeric($id) ? (int) $id : $id;
-    }
-
-    /**
      * Run an update statement against the database.
      *
      * @param  string  $query
@@ -207,6 +191,18 @@ class Connection
         $statement->execute($bindings);
 
         return $statement->rowCount();
+    }
+
+    /**
+     * Returns the value of the last primary key inserted.
+     *
+     * @return int
+     */
+    public function lastInsertId()
+    {
+        $id = $this->getPdo()->lastInsertId();
+
+        return is_numeric($id) ? (int) $id : $id;
     }
 
     /**
