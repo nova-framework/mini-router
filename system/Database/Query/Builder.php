@@ -47,6 +47,9 @@ class Builder
 
     protected $orders   = array();
 
+    // The last SQL query.
+    protected $lastQuery = '';
+
     /**
      * All of the available clause operators.
      *
@@ -432,7 +435,7 @@ class Builder
             $query .= sprintf(" LIMIT %s%s", $this->limit, $this->offset ? ", " .$this->offset : '');
         }
 
-        return preg_replace('/\s+/', ' ', trim($query));
+        return $this->lastQuery = preg_replace('/\s+/', ' ', trim($query));
     }
 
     /**
@@ -538,5 +541,15 @@ class Builder
     public function getTablePrefix()
     {
         return $this->tablePrefix;
+    }
+
+    /**
+     * Get the last SQL query.
+     *
+     * @return string
+     */
+    public function getLastQuery()
+    {
+        return $this->lastQuery;
     }
 }
