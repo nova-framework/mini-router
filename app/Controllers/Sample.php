@@ -61,7 +61,7 @@ class Sample extends BaseController
         $content .= '<pre>' .var_export($result, true) .'</pre>';
 
         //
-        $result = DB::table('users')->insert(array(
+        $id = DB::table('users')->insertGetId(array(
             'username'  => 'testuser2',
             'password'  => 'testuser2',
             'realname'  => 'Test User',
@@ -69,7 +69,7 @@ class Sample extends BaseController
             'activated' => 1,
         ));
 
-        $content .= '<pre>' .var_export($result, true) .'</pre>';
+        $content .= '<pre>' .var_export($id, true) .'</pre>';
 
         //
         $user = DB::table('users')->select('id', 'username', 'realname')->where('username', 'testuser2')->first();
