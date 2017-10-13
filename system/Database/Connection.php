@@ -132,7 +132,9 @@ class Connection
     {
         $this->statement($query, $bindings);
 
-        return $this->getPdo()->lastInsertId();
+        $id = $this->getPdo()->lastInsertId();
+
+        return is_numeric($id) ? (int) $id : $id;
     }
 
     /**
