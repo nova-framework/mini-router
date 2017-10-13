@@ -370,7 +370,7 @@ class Builder
                 $values[] = ":{$field}";
             }
 
-            $query = sprintf("INSERT INTO {$table} (%s) VALUES (%s)", implode(', ', $fields), implode(', ', $values));
+            $query = "INSERT INTO {$table} (" .implode(', ', $fields) .") VALUES (" .implode(', ', $values) .")";
         }
 
         // Update statements
@@ -409,7 +409,7 @@ class Builder
             $sql = array();
 
             foreach ($this->orders as $order) {
-                $sql[] = $order['column'] .' ' .$order['direction'];
+                $sql[] = $this->wrap($order['column']) .' ' .$order['direction'];
             }
 
             $query .= ' ORDER BY ' .implode(', ', $sql);
@@ -417,10 +417,14 @@ class Builder
 
         // Limits
         if (isset($this->limit)) {
-            $query .= sprintf(" LIMIT %s%s", $this->limit, $this->offset ? ", " .$this->offset : '');
+            $query .= ' LIMIT ' .(int) $this->limit;
         }
 
-        return $this->lastQuery = preg_replace('/\s+/', ' ', trim($query));
+        if (isset($this->offset)) {
+            $query .= ' OFFSET ' .(int) $this->offset;
+        }
+
+        return $this->lastQuery = preg_replace('/\s+/', ' ', $query);
     }
 
     /**
