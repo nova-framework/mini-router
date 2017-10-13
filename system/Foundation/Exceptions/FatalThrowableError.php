@@ -10,6 +10,7 @@ use TypeError;
 
 class FatalThrowableError extends ErrorException
 {
+
     public function __construct(Throwable $e)
     {
         if ($e instanceof ParseError) {
