@@ -11,10 +11,6 @@ use System\View\View;
 
 require APPPATH .'Config.php';
 
-//--------------------------------------------------------------------------
-// Boot the Application
-//--------------------------------------------------------------------------
-
 // Load the configuration files.
 foreach (glob(APPPATH .'Config/*.php') as $path) {
     $key = lcfirst(pathinfo($path, PATHINFO_FILENAME));
@@ -22,16 +18,25 @@ foreach (glob(APPPATH .'Config/*.php') as $path) {
     Config::set($key, require_once($path));
 }
 
+//--------------------------------------------------------------------------
+// Start the Application
+//--------------------------------------------------------------------------
+
 // Set the Default Timezone.
-date_default_timezone_set(Config::get('app.timezone'));
+$timezone = Config::get('app.timezone');
+
+date_default_timezone_set($timezone);
 
 // Load the Class Aliases.
 AliasLoader::initialize();
 
-// Load the Routes.
+// Load the Application Routes.
 require APPPATH .'Routes.php';
 
-// Dispatch the request.
+//--------------------------------------------------------------------------
+// Dispatch the HTTP Request
+//--------------------------------------------------------------------------
+
 $response = Router::dispatch();
 
 // Output the response from Router.
