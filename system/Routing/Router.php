@@ -66,7 +66,7 @@ class Router
         // Get the registered routes for the current HTTP method.
         $routes = isset($this->routes[$method]) ? $this->routes[$method] : array();
 
-        foreach ($routes as $route => $callback) {
+        foreach ($routes as $route => $action) {
             list ($pattern, $variables) = $this->compileRoute($route);
 
             // Match the route pattern against the URI.
@@ -80,18 +80,17 @@ class Router
 
             }, ARRAY_FILTER_USE_KEY);
 
-            if ($callback instanceof Closure) {
-                return call_user_func_array($callback, $parameters);
+            if ($action instanceof Closure) {
+                return call_user_func_array($action, $parameters);
             }
 
-            // Execute the Controller's Action.
-            list ($controller, $method) = explode('@', $callback);
+            list ($controller, $method) = explode('@', $action);
 
             if (! class_exists($controller)) {
                 throw new LogicException("Controller [$controller] does not exists.");
             }
 
-            // Create the Controller instance and check for its method.
+            // Create a Controller instance and check for the requested method.
             else if (! method_exists($instance = new $controller(), $method)) {
                 throw new LogicException("Controller [$controller] has no method named [$method].");
             }
@@ -111,7 +110,7 @@ class Router
 
         $variables = array();
 
-        $callback = function ($matches) use ($pattern, &$optionals, &$variables)
+        $result = preg_replace_callback('#/\{(.*?)(?:\:(.+?))?(\?)?\}#', function ($matches) use ($pattern, &$optionals, &$variables)
         {
             @list($text, $name, $condition, $optional) = $matches;
 
@@ -134,9 +133,8 @@ class Router
             }
 
             return $regexp;
-        };
 
-        $result = preg_replace_callback('#/\{(.*?)(?:\:(.+?))?(\?)?\}#', $callback, $pattern);
+        }, $pattern);
 
         $regexp = '#^' .$result .str_repeat(')?', $optionals) .'$#i';
 
