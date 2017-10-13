@@ -42,9 +42,9 @@ class Connection
     {
         $this->pdo = $this->createConnection($config);
 
-        $this->setFetchMode($this->fetchMode);
-
         $this->tablePrefix = $config['prefix'];
+
+        $this->setFetchMode($this->fetchMode);
     }
 
     /**
@@ -210,6 +210,16 @@ class Connection
     }
 
     /**
+     * Get the PDO instance.
+     *
+     * @return PDO
+     */
+    public function getPdo()
+    {
+        return $this->pdo;
+    }
+
+    /**
      * Get the table prefix for the connection.
      *
      * @return string
@@ -228,16 +238,6 @@ class Connection
     public function setTablePrefix($prefix)
     {
         $this->tablePrefix = $prefix;
-    }
-
-    /**
-     * Get the PDO instance.
-     *
-     * @return PDO
-     */
-    public function getPdo()
-    {
-        return $this->pdo;
     }
 
     /**
