@@ -422,7 +422,7 @@ class Builder
             $query .= ' OFFSET ' .(int) $this->offset;
         }
 
-        return $this->lastQuery = preg_replace('/\s+/', ' ', $query);
+        return $this->lastQuery = $query;
     }
 
     /**
@@ -511,16 +511,6 @@ class Builder
     }
 
     /**
-     * Get the format for database stored dates.
-     *
-     * @return string
-     */
-    public function getDateFormat()
-    {
-        return 'Y-m-d H:i:s';
-    }
-
-    /**
      * Get the grammar's table prefix.
      *
      * @return string
@@ -528,6 +518,16 @@ class Builder
     public function getTablePrefix()
     {
         return $this->tablePrefix;
+    }
+
+    /**
+     * Get the format for database stored dates.
+     *
+     * @return string
+     */
+    public function getDateFormat()
+    {
+        return 'Y-m-d H:i:s';
     }
 
     /**
