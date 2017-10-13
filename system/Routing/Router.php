@@ -124,7 +124,7 @@ class Router
             $variables[] = $name;
 
             $regexp = sprintf('/(?P<%s>%s)', $name, ! empty($condition)
-                ? str_replace(array('num', 'all'), array('(\d+)', '(.*)'), $condition)
+                ? str_replace(array('num', 'all'), array('\d+', '.*'), $condition)
                 : '[^/]+');
 
             if ($optional) {
