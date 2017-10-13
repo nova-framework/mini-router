@@ -26,20 +26,23 @@ class Handler
 
 
     /**
-     * Initialize the Exceptions Handler.
+     * Create a new Exceptions Handler instance.
      *
      * @return void
      */
-    public static function initialize()
+    public function __construct()
     {
-        error_reporting(-1);
+        $this->debug = Config::get('app.debug', true);
+    }
 
-        ini_set('display_errors', 'Off');
-
-        // Create the Exceptions Handler instance.
+    /**
+     * Bootstrap the Exceptions Handler.
+     *
+     * @return void
+     */
+    public static function bootstrap()
+    {
         static::$instance = $instance = new static();
-
-        $instance->debug = Config::get('app.debug', true);
 
         // Setup the Exception Handlers.
         set_error_handler(array($instance, 'handleError'));

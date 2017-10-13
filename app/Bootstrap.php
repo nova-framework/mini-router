@@ -6,6 +6,15 @@ use System\Foundation\AliasLoader;
 use System\Routing\Router;
 use System\View\View;
 
+
+//--------------------------------------------------------------------------
+// Setup the Errors Reporting
+//--------------------------------------------------------------------------
+
+error_reporting(-1);
+
+ini_set('display_errors', 'Off');
+
 //--------------------------------------------------------------------------
 // Load the Configuration
 //--------------------------------------------------------------------------
@@ -24,15 +33,15 @@ foreach (glob(APPPATH .'Config/*.php') as $path) {
 //--------------------------------------------------------------------------
 
 // Set the Default Timezone.
-$timezone = Config::get('app.timezone');
+$timezone = Config::get('app.timezone', 'Europe/London');
 
 date_default_timezone_set($timezone);
 
-// Initialize the Exceptions Handler.
-ExceptionHandler::initialize();
+// Bootstrap the Exceptions Handler.
+ExceptionHandler::bootstrap();
 
-// Load the Class Aliases.
-AliasLoader::initialize();
+// Bootstrap the Aliases Loader.
+AliasLoader::bootstrap();
 
 // Load the Application Routes.
 require APPPATH .'Routes.php';
@@ -43,9 +52,9 @@ require APPPATH .'Routes.php';
 
 $response = Router::dispatch();
 
-// Output the response from Router.
+// Display the response received from Routing.
 if ($response instanceof View) {
-    $response = $response->render();
+    echo $response->render();
+} else {
+    echo $response;
 }
-
-echo $response;

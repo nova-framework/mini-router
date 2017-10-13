@@ -10,7 +10,13 @@ use System\Config\Config;
  */
 class AliasLoader
 {
-    public static function initialize()
+
+    /**
+     * Bootstrap the Aliases Loader.
+     *
+     * @return void
+     */
+    public static function bootstrap()
     {
         $classes = Config::get('app.aliases', array());
 
