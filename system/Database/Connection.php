@@ -43,7 +43,7 @@ class Connection
      */
     public function __construct(array $config)
     {
-        $this->pdo = $this->createConnection($config);
+        $this->pdo = $this->createPdoConnection($config);
 
         $this->tablePrefix = $config['prefix'];
     }
@@ -54,7 +54,7 @@ class Connection
      * @param  array   $config
      * @return PDO
      */
-    protected function createConnection(array $config)
+    protected function createPdoConnection(array $config)
     {
         extract($config);
 
