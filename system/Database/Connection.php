@@ -78,9 +78,9 @@ class Connection
      */
     public function selectOne($query, $bindings = array())
     {
-        $records = $this->select($query, $bindings);
+        $statement = $this->statement($query, $bindings);
 
-        return (count($records) > 0) ? reset($records) : null;
+        return $statement->fetch($this->getFetchMode()) ?: null;
     }
 
     /**
@@ -92,9 +92,7 @@ class Connection
      */
     public function select($query, array $bindings = array())
     {
-        $statement = $this->getPdo()->prepare($query);
-
-        $statement->execute($bindings);
+        $statement = $this->statement($query, $bindings);
 
         return $statement->fetchAll($this->getFetchMode());
     }
@@ -156,11 +154,7 @@ class Connection
      */
     public function affectingStatement($query, array $bindings = array())
     {
-        $statement = $this->getPdo()->prepare($query);
-
-        $statement->execute($bindings);
-
-        return $statement->rowCount();
+        return $this->statement($query, $bindings)->rowCount();
     }
 
     /**
