@@ -180,7 +180,11 @@ class Connection
      */
     public function affectingStatement($query, array $bindings = array())
     {
-        return $this->statement($query, $bindings)->rowCount();
+        $statement = $this->getPdo()->prepare($query);
+
+        $statement->execute($bindings);
+
+        return $statement->rowCount();
     }
 
     /**
