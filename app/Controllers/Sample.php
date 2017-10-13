@@ -74,6 +74,8 @@ class Sample extends BaseController
         //
         $user = DB::table('users')->select('id', 'username', 'realname')->where('username', 'testuser2')->first();
 
+        $content .= '<pre>' .var_export($user, true) .'</pre>';
+
         return $this->createView(compact('content'), 'Index')
             ->shares('title', 'Database API');
     }

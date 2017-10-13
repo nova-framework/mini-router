@@ -55,11 +55,7 @@ class Builder
      *
      * @var array
      */
-    protected $operators = array(
-        '=', '<', '>', '<=', '>=', '<>', '!=',
-        'like', 'not like', 'between', 'ilike',
-        '&', '|', '^', '<<', '>>',
-    );
+    protected $operators = array('=', '<', '>', '<=', '>=', '<>', '!=', 'like', 'not like', 'between', 'ilike', '&', '|', '^', '<<', '>>');
 
 
     /**
