@@ -98,7 +98,7 @@ class Router
             return $instance->callAction($method, $parameters);
         }
 
-        // If we reached there, no route was found for the current request.
+        // If we reached here, no route was found for the current HTTP request.
         return View::make('Errors/404')->render();
     }
 
