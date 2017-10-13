@@ -43,7 +43,7 @@ class Connection
      */
     public function __construct(array $config)
     {
-        $this->pdo = $this->createPdoConnection($config);
+        $this->pdo = $this->createConnection($config);
 
         $this->tablePrefix = $config['prefix'];
     }
@@ -54,16 +54,24 @@ class Connection
      * @param  array   $config
      * @return PDO
      */
-    protected function createPdoConnection(array $config)
+    protected function createConnection(array $config)
     {
         extract($config);
 
         $dsn = "$driver:host={$hostname};dbname={$database}";
 
         $options = array(
+            PDO::ATTR_CASE               => PDO::CASE_NATURAL,
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => $this->fetchMode,
-            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES {$charset} COLLATE {$collation}"
+            PDO::ATTR_ORACLE_NULLS       => PDO::NULL_NATURAL,
+            PDO::ATTR_STRINGIFY_FETCHES  => false,
+            PDO::ATTR_EMULATE_PREPARES   => false,
+
+            // The default fetch mode.
+            PDO::ATTR_DEFAULT_FETCH_MODE => $this->getFetchMode(),
+
+            // For MySQL:
+            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES {$charset}" .(! is_null($collation) ? " COLLATE '$collation'" : ''),
         );
 
         return new PDO($dsn, $username, $password, $options);
