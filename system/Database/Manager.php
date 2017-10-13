@@ -1,10 +1,4 @@
 <?php
-/**
- * Facade - A static Facade to Database Connection.
- *
- * @author Virgil-Adrian Teaca - virgil@giulianaeassociati.com
- * @version 3.0
- */
 
 namespace System\Database;
 

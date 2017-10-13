@@ -1,10 +1,4 @@
 <?php
-/**
- * Connection - A PDO based Database Connection.
- *
- * @author Virgil-Adrian Teaca - virgil@giulianaeassociati.com
- * @version 3.0
- */
 
 namespace System\Database;
 
