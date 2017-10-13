@@ -73,7 +73,7 @@ class Router
 
                 $parameters = array_filter($matches, function ($key) use ($variables)
                 {
-                    return is_string($key) && in_array($key, $variables);
+                    return in_array($key, $variables);
 
                 }, ARRAY_FILTER_USE_KEY);
 
