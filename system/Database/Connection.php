@@ -80,7 +80,7 @@ class Connection
     {
         $statement = $this->statement($query, $bindings);
 
-        return $statement->fetch($this->getFetchMode());
+        return $statement->fetch($this->getFetchMode()) ?: null;
     }
 
     /**
