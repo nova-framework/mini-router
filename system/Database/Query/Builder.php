@@ -415,11 +415,11 @@ class Builder
 
         // Limits
         if (isset($this->limit)) {
-            $query .= ' LIMIT ' .(int) $this->limit;
+            $query .= ' LIMIT ' .intval($this->limit);
         }
 
         if (isset($this->offset)) {
-            $query .= ' OFFSET ' .(int) $this->offset;
+            $query .= ' OFFSET ' .intval($this->offset);
         }
 
         return $this->lastQuery = $query;
