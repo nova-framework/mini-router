@@ -100,7 +100,7 @@ class Router
 
         // Create a Controller instance and check for the requested method.
         else if (! method_exists($instance = new $controller(), $method)) {
-            throw new LogicException("Controller [$controller] has no method named [$method].");
+            throw new LogicException("Controller [$controller] has no method [$method].");
         }
 
         return $instance->callAction($method, $parameters);
