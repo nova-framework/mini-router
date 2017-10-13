@@ -77,7 +77,7 @@ class Router
 
                 }, ARRAY_FILTER_USE_KEY);
 
-                return $this->callRouteAction($action, $parameters);
+                return $this->callAction($action, $parameters);
             }
         }
 
@@ -86,7 +86,7 @@ class Router
         return View::make('Errors/404')->render();
     }
 
-    protected function callRouteAction($callback, $parameters)
+    protected function callAction($callback, $parameters)
     {
         if ($callback instanceof Closure) {
             return call_user_func_array($callback, $parameters);
