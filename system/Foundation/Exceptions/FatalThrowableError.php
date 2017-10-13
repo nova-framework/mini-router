@@ -4,6 +4,7 @@ namespace System\Foundation\Exceptions;
 
 use ErrorException;
 use ParseError;
+use ReflectionProperty;
 use Throwable;
 use TypeError;
 
@@ -33,5 +34,14 @@ class FatalThrowableError extends ErrorException
         );
 
         $this->setTrace($e->getTrace());
+    }
+
+    protected function setTrace($trace)
+    {
+        $traceReflector = new ReflectionProperty('Exception', 'trace');
+
+        $traceReflector->setAccessible(true);
+
+        $traceReflector->setValue($this, $trace);
     }
 }
