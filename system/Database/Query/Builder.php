@@ -69,7 +69,7 @@ class Builder
      * Set the columns to be selected.
      *
      * @param  array  $columns
-     * @return \Mini\Database\Query\Builder|static
+     * @return \System\Database\Query\Builder|static
      */
     public function select($columns = array('*'))
     {
@@ -79,9 +79,35 @@ class Builder
     }
 
     /**
+     * Add a new "raw" select expression to the query.
+     *
+     * @param  string  $expression
+     * @return \System\Database\Query\Builder|static
+     */
+    public function selectRaw($expression)
+    {
+        return $this->select(new Expression($expression));
+    }
+
+    /**
+     * Add a new select column to the query.
+     *
+     * @param  mixed  $column
+     * @return \System\Database\Query\Builder|static
+     */
+    public function addSelect($column)
+    {
+        $column = is_array($column) ? $column : func_get_args();
+
+        $this->columns = array_merge((array) $this->columns, $column);
+
+        return $this;
+    }
+
+    /**
      * Force the query to only return distinct results.
      *
-     * @return \Mini\Database\Query\Builder|static
+     * @return \System\Database\Query\Builder|static
      */
     public function distinct()
     {
@@ -94,7 +120,7 @@ class Builder
      * Set the table which the query is targeting.
      *
      * @param string $table
-     * @return \Mini\Database\Query\Builder|static
+     * @return \System\Database\Query\Builder|static
      */
     public function from($table)
     {
