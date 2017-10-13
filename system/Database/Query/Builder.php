@@ -239,13 +239,16 @@ class Builder
         }
 
         if (func_num_args() == 2) {
-            list($value, $operator) = array($operator, '=');
-        } else if ($this->invalidOperatorAndValue($operator, $value)) {
+            list ($value, $operator) = array($operator, '=');
+        }
+
+        // Check the oeprator and value.
+        else if ($this->invalidOperatorAndValue($operator, $value)) {
             throw new \InvalidArgumentException("A value must be provided.");
         }
 
         if (! in_array(strtolower($operator), $this->operators, true)) {
-            list($value, $operator) = array($operator, '=');
+            list ($value, $operator) = array($operator, '=');
         }
 
         $this->wheres[] = compact('column', 'operator', 'value', 'boolean');
@@ -438,9 +441,9 @@ class Builder
         }
 
         if (strpos(strtolower($value), ' as ') !== false) {
-            $segments = explode(' ', $value);
+            list ($field, $alias) = explode(' ', $value);
 
-            return $this->wrap($segments[0]) .' AS ' .$this->wrapValue($segments[2]);
+            return $this->wrap($field) .' AS ' .$this->wrapValue($alias);
         }
 
         $wrapped = array();
