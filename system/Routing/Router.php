@@ -63,8 +63,8 @@ class Router
 
         $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';
 
-        // Get the registered routes for the current HTTP method.
-        $routes = isset($this->routes[$method]) ? $this->routes[$method] : array();
+        // Get the routes registered for the current HTTP method.
+        $routes = array_get($this->routes, $method, array());
 
         foreach ($routes as $route => $action) {
             list ($pattern, $variables) = $this->compileRoute($route);
@@ -104,11 +104,12 @@ class Router
 
     protected function compileRoute($route)
     {
-        $pattern = '/' .trim($route, '/');
-
         $optionals = 0;
 
         $variables = array();
+
+        // Prepare the pattern and compute the associated regular expression.
+        $pattern = '/' .trim($route, '/');
 
         $result = preg_replace_callback('#/\{(.*?)(?:\:(.+?))?(\?)?\}#', function ($matches) use ($pattern, &$optionals, &$variables)
         {
