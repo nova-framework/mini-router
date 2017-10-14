@@ -225,7 +225,7 @@ class Builder
     }
 
     /**
-     * Build the SQL string and parameters for conditions.
+     * Compute the SQL and parameters for conditions.
      *
      * @return string
      */
