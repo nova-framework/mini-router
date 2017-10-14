@@ -34,9 +34,9 @@ class Sample extends BaseController
         $content = '';
 
         //
-        $sql = DB::prepare('SELECT {users.id} FROM {users} WHERE id = :id');
+        $statement = DB::prepare('SELECT {users.id} FROM {users} WHERE id = :id');
 
-        $content .= '<pre>' .var_export($sql, true) .'</pre>';
+        $content .= '<pre>' .var_export($statement->queryString, true) .'</pre>';
 
         //
         $users = DB::select('SELECT id, username, realname, email FROM {users}');

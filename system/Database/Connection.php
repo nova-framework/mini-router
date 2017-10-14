@@ -91,7 +91,7 @@ class Connection
      */
     public function selectOne($query, $bindings = array())
     {
-        $statement = $this->getPdo()->prepare($this->prepare($query));
+        $statement = $this->prepare($query);
 
         $statement->execute($bindings);
 
@@ -107,7 +107,7 @@ class Connection
      */
     public function select($query, array $bindings = array())
     {
-        $statement = $this->getPdo()->prepare($this->prepare($query));
+        $statement = $this->prepare($query);
 
         $statement->execute($bindings);
 
@@ -159,7 +159,7 @@ class Connection
      */
     public function statement($query, array $bindings = array())
     {
-        $statement = $this->getPdo()->prepare($this->prepare($query));
+        $statement = $this->prepare($query);
 
         return $statement->execute($bindings);
     }
@@ -173,11 +173,23 @@ class Connection
      */
     public function affectingStatement($query, array $bindings = array())
     {
-        $statement = $this->getPdo()->prepare($this->prepare($query));
+        $statement = $this->prepare($query);
 
         $statement->execute($bindings);
 
         return $statement->rowCount();
+    }
+
+    /**
+     * Returns the ID of the last inserted row or sequence value.
+     *
+     * @return mixed
+     */
+    public function lastInsertId()
+    {
+        $id = $this->getPdo()->lastInsertId();
+
+        return is_numeric($id) ? (int) $id : $id;
     }
 
     /**
@@ -190,7 +202,7 @@ class Connection
     {
         $prefix = $this->getTablePrefix();
 
-        return preg_replace_callback('#\{(.*?)\}#', function ($matches) use ($prefix)
+        $query = preg_replace_callback('#\{(.*?)\}#', function ($matches) use ($prefix)
         {
             @list ($table, $field) = explode('.', $matches[1], 2);
 
@@ -203,6 +215,8 @@ class Connection
             return $result;
 
         }, $query);
+
+        return $this->getPdo()->prepare($query);
     }
 
     /**

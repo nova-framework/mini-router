@@ -114,9 +114,7 @@ class Builder
     {
         $this->insert($data);
 
-        $id = $this->connection->getPdo()->lastInsertId();
-
-        return is_numeric($id) ? (int) $id : $id;
+        return $this->connection->lastInsertId();
     }
 
     /**
