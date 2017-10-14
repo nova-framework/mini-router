@@ -61,7 +61,7 @@ class Sample extends BaseController
             'activated' => 0,
         );
 
-        $userId = DB::table('users')->insert($data);
+        $userId = DB::table('users')->insertGetId($data);
 
         $content .= '<pre>' .var_export($userId, true) .'</pre>';
 

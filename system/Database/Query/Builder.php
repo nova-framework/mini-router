@@ -22,13 +22,13 @@ class Builder
     protected $table;
 
     /**
-     * The conditions.
+     * The query conditions.
      */
     protected $wheres = array();
     protected $params = array();
+    protected $orders = array();
 
     protected $limit;
-    protected $orders;
 
 
     /**
@@ -56,7 +56,70 @@ class Builder
     }
 
     /**
-     * Add one or more conditions.
+     * Execute an insert query.
+     *
+     * @param array $data
+     * @return array
+     */
+    public function insert(array $data)
+    {
+        foreach ($data as $field => $value) {
+            $fields[] = $this->wrap($field);
+
+            $values[] = ":{$field}";
+        }
+
+        $query = "INSERT INTO {{$this->table}} (" .implode(', ', $fields) .") VALUES (" .implode(', ', $values) .")";
+
+        return $this->connection->insert($query, $data);
+    }
+
+    /**
+     * Insert a new Record and get the value of the primary key.
+     *
+     * @param array $data
+     * @return array
+     */
+    public function insertGetId(array $data)
+    {
+        $this->insert($data);
+
+        $id = $this->connection->getPdo()->lastInsertId();
+
+        return is_numeric($id) ? (int) $id : $id;
+    }
+
+    /**
+     * Execute an update query
+     *
+     * @param  array   $data
+     * @return boolean
+     */
+    public function update(array $data)
+    {
+        foreach ($data as $field => $value) {
+            $sql[] = $this->wrap($field) ." = :{$field}";
+        }
+
+        $query = "UPDATE {{$this->table}} SET " .implode(', ', $sql) ." " .$this->conditions();
+
+        return $this->connection->update($query, array_merge($data, $this->params));
+    }
+
+    /**
+     * Execute a delete query.
+     *
+     * @return array
+     */
+    public function delete()
+    {
+        $query = "DELETE FROM {{$this->table}} " .$this->conditions();
+
+        return $this->connection->delete($query, $this->params);
+    }
+
+    /**
+     * Add a "WHERE" clause to the query.
      *
      * @param string $field
      * @param string|null $operator
@@ -88,57 +151,19 @@ class Builder
     }
 
     /**
-     * Execute an insert query.
+     * Add an "ORDER BY" clause to the query.
      *
-     * @param array $data
-     * @return array
+     * @param array|string $fields
+     * @param string $order
+     * @return \System\Database\Query\Builder|static
      */
-    public function insert(array $data)
+    public function orderBy($column, $direction = 'asc')
     {
-        foreach ($data as $field => $value) {
-            $fields[] = $this->wrap($field);
+        $direction = (strtolower($direction) == 'asc') ? 'ASC' : 'DESC';
 
-            $values[] = ":{$field}";
-        }
+        $this->orders[] = compact('column', 'direction');
 
-        $query = '(' .implode(', ', $fields) .') VALUES (' .implode(', ', $values) .')';
-
-        $this->connection->insert("INSERT INTO {{$this->table}} $query", $data);
-
-        return $this->connection->lastInsertId();
-    }
-
-    /**
-     * Execute an update query
-     *
-     * @param  array   $data
-     * @return boolean
-     */
-    public function update(array $data)
-    {
-        foreach ($data as $field => $value) {
-            $field = trim($field, ':');
-
-            $sql[] = $this->wrap($field) ." = :{$field}";
-        }
-
-        $query = ' ' .implode(', ', $sql) .' ' .$this->conditions();
-
-        return $this->connection->update(
-            "UPDATE {{$this->table}} SET $query", array_merge($data, $this->params)
-        );
-    }
-
-    /**
-     * Execute a delete query.
-     *
-     * @return array
-     */
-    public function delete()
-    {
-        $query = $this->conditions();
-
-        return $this->connection->delete("DELETE FROM {{$this->table}} $query", $this->params);
+        return $this;
     }
 
     /**
@@ -152,22 +177,6 @@ class Builder
         if ($value > 0) {
             $this->limit = $value;
         }
-
-        return $this;
-    }
-
-    /**
-     * Add an "ORDER BY" clause to the query.
-     *
-     * @param array|string $fields
-     * @param string $order
-     * @return \System\Database\Query\Builder|static
-     */
-    public function orderBy($column, $direction = 'asc')
-    {
-        $direction = (strtolower($direction) == 'asc') ? 'ASC' : 'DESC';
-
-        $this->orders[] = compact('column', 'direction');
 
         return $this;
     }
@@ -189,16 +198,18 @@ class Builder
             $this->params[$param] = $where['value'];
         }
 
-        $query = 'WHERE ' .preg_replace('/AND |OR /', '', implode(' ', $wheres), 1);
+        if (! empty($wheres)) {
+            $query = 'WHERE ' .preg_replace('/AND |OR /', '', implode(' ', $wheres), 1);
+        }
 
         // Orders
-        if (! empty($this->orders)) {
-            $orders = array();
+        $orders = array();
 
-            foreach ($this->orders as $order) {
-                $orders[] = $this->wrap($order['column']) .' ' .$order['direction'];
-            }
+        foreach ($this->orders as $order) {
+            $orders[] = $this->wrap($order['column']) .' ' .$order['direction'];
+        }
 
+        if (! empty($orders)) {
             $query .= ' ORDER BY ' .implode(', ', $orders);
         }
 

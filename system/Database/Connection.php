@@ -194,18 +194,6 @@ class Connection
     }
 
     /**
-     * Returns the value of the last primary key inserted.
-     *
-     * @return int
-     */
-    public function lastInsertId()
-    {
-        $id = $this->getPdo()->lastInsertId();
-
-        return is_numeric($id) ? (int) $id : $id;
-    }
-
-    /**
      * Parse the table variables and add the table prefix.
      *
      * @param  string  $query
