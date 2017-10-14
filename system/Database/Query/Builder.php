@@ -101,7 +101,7 @@ class Builder
             $sql[] = $this->wrap($field) ." = :{$field}";
         }
 
-        $query = "UPDATE {{$this->table}} SET " .implode(', ', $sql) ." " .$this->conditions();
+        $query = "UPDATE {{$this->table}} SET " .implode(', ', $sql) .$this->conditions();
 
         return $this->connection->update($query, array_merge($data, $this->params));
     }
@@ -113,7 +113,7 @@ class Builder
      */
     public function delete()
     {
-        $query = "DELETE FROM {{$this->table}} " .$this->conditions();
+        $query = "DELETE FROM {{$this->table}}" .$this->conditions();
 
         return $this->connection->delete($query, $this->params);
     }
@@ -190,30 +190,33 @@ class Builder
      */
     protected function conditions()
     {
+        $query = '';
+
+        // Wheres
         $wheres = array();
 
         foreach ($this->wheres as $where) {
-            $column = $where['column'];
-
             $boolean = strtoupper($where['boolean']);
+
+            $column =$this->wrap($where['column']);
 
             if ($where['type'] == 'Null') {
                 $not = ($where['operator'] !== '=') ? 'NOT ' : '';
 
-                $wheres[] = $boolean .' ' .$this->wrap($column) .' IS ' .$not .'NULL';
+                $wheres[] = $boolean .' ' .$column .' IS ' .$not .'NULL';
 
                 continue;
             }
 
-            $param = ':' .$column;
+            $param = ':' .$where['column'];
 
-            $wheres[] =  $boolean .' ' .$this->wrap($column) .' ' .$where['operator'] .' ' .$param;
+            $wheres[] = $boolean .' ' .$column .' ' .$where['operator'] .' ' .$param;
 
             $this->params[$param] = $where['value'];
         }
 
         if (! empty($wheres)) {
-            $query = 'WHERE ' .preg_replace('/AND |OR /', '', implode(' ', $wheres), 1);
+            $query .= ' WHERE ' .preg_replace('/AND |OR /', '', implode(' ', $wheres), 1);
         }
 
         // Orders
