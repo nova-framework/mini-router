@@ -253,9 +253,9 @@ class Builder
 
             $param = ':' .$where['column'];
 
-            $sql[] = $column .' ' .$where['operator'] .' ' .$param;
-
             $this->params[$param] = $where['value'];
+
+            $sql[] = $column .' ' .$where['operator'] .' ' .$param;
         }
 
         if (! empty($sql)) {
