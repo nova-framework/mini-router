@@ -95,10 +95,10 @@ class Builder
     public function update(array $data)
     {
         foreach ($data as $field => $value) {
-            $sql[] = $this->wrap($field) ." = :{$field}";
+            $fields[] = $this->wrap($field) ." = :{$field}";
         }
 
-        $query = "UPDATE {{$this->table}} SET " .implode(', ', $sql) .$this->conditions();
+        $query = "UPDATE {{$this->table}} SET " .implode(', ', $fields) .$this->conditions();
 
         return $this->connection->update($query, array_merge($data, $this->params));
     }
