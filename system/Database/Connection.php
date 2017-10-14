@@ -2,7 +2,7 @@
 
 namespace System\Database;
 
-use System\Database\Query;
+use System\Database\Query\Builder as QueryBuilder;
 
 use \PDO;
 
@@ -90,7 +90,7 @@ class Connection
      */
     public function table($table)
     {
-        $query = new Query($this);
+        $query = new QueryBuilder($this);
 
         return $query->from($table);
     }

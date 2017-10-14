@@ -1,11 +1,11 @@
 <?php
 
-namespace System\Database;
+namespace System\Database\Query;
 
 use System\Database\Connection;
 
 
-class Query
+class Builder
 {
     /**
      * The Database Connection instance.
