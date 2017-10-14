@@ -67,38 +67,34 @@ class Sample extends BaseController
         $content .= '<pre>' .var_export($users, true) .'</pre>';
 
         //
-        $data = array(
+        $userId = DB::table('users')->insertGetId(array(
             'username'  => 'testuser',
             'password'  => 'password',
             'realname'  => 'Test User',
             'email'     => 'test@testuser.dev',
             'activated' => 0,
-        );
-
-        $userId = DB::table('users')->insertGetId($data);
+        ));
 
         $content .= '<pre>' .var_export($userId, true) .'</pre>';
 
         //
-        $user = DB::selectOne('SELECT {users.*} FROM {users} WHERE id = :id', array('id' => $userId));
+        $user = DB::table('users')->find($userId);
 
         $content .= '<pre>' .var_export($user, true) .'</pre>';
 
         //
-        $data = array(
+        $result = DB::table('users')->where('id', $userId)->update(array(
             'username'  => 'testuser2',
             'password'  => 'another password',
             'realname'  => 'Updated Test User',
             'email'     => 'test@testuser.dev',
             'activated' => 1,
-        );
-
-        $result = DB::table('users')->where('id', $userId)->update($data);
+        ));
 
         $content .= '<pre>' .var_export($result, true) .'</pre>';
 
         //
-        $user = DB::selectOne('SELECT {users.*} FROM {users} WHERE id = :id', array('id' => $userId));
+        $user = DB::table('users')->find($userId);
 
         $content .= '<pre>' .var_export($user, true) .'</pre>';
 
@@ -109,6 +105,6 @@ class Sample extends BaseController
 
 
         return $this->createView(compact('content'), 'Index')
-            ->shares('title', 'Database API');
+            ->shares('title', 'Database API & QueryBuilder');
     }
 }
