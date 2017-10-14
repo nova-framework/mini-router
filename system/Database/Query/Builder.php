@@ -241,9 +241,17 @@ class Builder
         $sql = array();
 
         foreach ($this->wheres as $where) {
+            $column = strtoupper($where['boolean']) .' ' .$this->wrap($where['column']);
+
+            if (! isset($where['value'])) {
+                $sql[] = $column .' IS ' .(($where['operator'] !== '=') ? 'NOT ' : '') .'NULL';
+
+                continue;
+            }
+
             $param = ':' .$where['column'];
 
-            $sql[] = strtoupper($where['boolean']) .' ' .$this->wrap($where['column']) .' ' .$where['operator'] .' ' .$param;
+            $sql[] = $column .' ' .$where['operator'] .' ' .$param;
 
             $this->params[$param] = $where['value'];
         }
