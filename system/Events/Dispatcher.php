@@ -115,7 +115,10 @@ class Dispatcher
 
         if (is_object($event)) {
             list ($payload, $event) = array(array($event), get_class($event));
-        } else if (! is_array($payload)) {
+        }
+
+        // Ensure that payload is an array.
+        else if (! is_array($payload)) {
             $payload = array($payload);
         }
 
