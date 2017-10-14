@@ -46,14 +46,14 @@ class Connection
      */
     public function __construct(array $config)
     {
-        $this->pdo = $this->createConnection($config);
-
         $this->tablePrefix = $config['prefix'];
 
         $this->wrapper = $config['wrapper'];
 
+        $this->pdo = $this->createConnection($config);
+
         //
-        $this->setFetchMode($this->fetchMode);
+        $this->setFetchMode();
     }
 
     /**
@@ -69,14 +69,10 @@ class Connection
         $dsn = "$driver:host={$hostname};dbname={$database}";
 
         $options = array(
-            PDO::ATTR_CASE               => PDO::CASE_NATURAL,
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_ORACLE_NULLS       => PDO::NULL_NATURAL,
             PDO::ATTR_STRINGIFY_FETCHES  => false,
             PDO::ATTR_EMULATE_PREPARES   => false,
-
-            // The MySQL init command.
-            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES {$charset}" .(! is_null($collation) ? " COLLATE '$collation'" : ''),
+            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES {$charset} COLLATE '$collation'",
         );
 
         return new PDO($dsn, $username, $password, $options);
@@ -230,9 +226,7 @@ class Connection
             return $value;
         }
 
-        $wrapper = $this->getWrapper();
-
-        return $wrapper .$value .$wrapper;
+        return $this->wrapper .$value .$this->wrapper;
     }
 
     /**
@@ -266,17 +260,6 @@ class Connection
     }
 
     /**
-     * Set the table prefix in use by the connection.
-     *
-     * @param  string  $prefix
-     * @return void
-     */
-    public function setTablePrefix($prefix)
-    {
-        $this->tablePrefix = $prefix;
-    }
-
-    /**
      * Get the default fetch mode for the connection.
      *
      * @return int
@@ -292,11 +275,12 @@ class Connection
      * @param  int  $fetchMode
      * @return int
      */
-    public function setFetchMode($fetchMode)
+    public function setFetchMode($fetchMode = null)
     {
-        $this->fetchMode = $fetchMode;
+        if (! is_null($fetchMode)) {
+            $this->fetchMode = $fetchMode;
+        }
 
-        //
-        $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, $fetchMode);
+        $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, $this->fetchMode);
     }
 }

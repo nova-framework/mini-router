@@ -6,7 +6,7 @@ namespace System\Events;
 class Dispatcher
 {
     /**
-     * The used Events Dispatcher instance.
+     * The active Events Dispatcher instance.
      *
      * @var \System\Events\Dispatcher
      */

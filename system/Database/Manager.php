@@ -36,6 +36,8 @@ class Manager
 
     public static function __callStatic($method, $parameters)
     {
-        return call_user_func_array(array(static::connection(), $method), $parameters);
+        $instance = static::connection();
+
+        return call_user_func_array(array($instance, $method), $parameters);
     }
 }
