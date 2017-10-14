@@ -8,7 +8,7 @@ use System\Database\Connection;
 class Builder
 {
     /**
-     * @var  \System\Database\Connection  The Database Connection instance.
+     * @var  \System\Database\Connection  The Connection instance.
      */
     protected $connection;
 

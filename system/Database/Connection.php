@@ -192,7 +192,7 @@ class Connection
 
         return preg_replace_callback('#\{(.*?)\}#', function ($matches) use ($prefix)
         {
-            @list ($table, $field) = explode('.', $matches[1]);
+            @list ($table, $field) = explode('.', $matches[1], 2);
 
             $result = $this->wrap($prefix .$table);
 
