@@ -15,7 +15,7 @@ class AliasLoader
      *
      * @return void
      */
-    public static function bootstrap()
+    public static function initialize()
     {
         $classes = Config::get('app.aliases', array());
 

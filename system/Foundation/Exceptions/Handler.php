@@ -41,7 +41,7 @@ class Handler
      *
      * @return void
      */
-    public static function bootstrap()
+    public static function initialize()
     {
         static::$instance = $instance = new static();
 

@@ -38,10 +38,10 @@ $timezone = Config::get('app.timezone', 'Europe/London');
 date_default_timezone_set($timezone);
 
 // Bootstrap the Exceptions Handler.
-ExceptionHandler::bootstrap();
+ExceptionHandler::initialize();
 
 // Bootstrap the Aliases Loader.
-AliasLoader::bootstrap();
+AliasLoader::initialize();
 
 // Load the Application Routes.
 require APPPATH .'Routes.php';
