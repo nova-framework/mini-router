@@ -123,7 +123,7 @@ class Builder
      * @param mixed|null $value
      * @return static
      */
-    public function where($column, $operator = null, $value = null, $boolean = 'and')
+    public function where($column, $operator = null, $value = null, $boolean = 'AND')
     {
         if (func_num_args() == 2) {
             list ($value, $operator) = array($operator, '=');
@@ -144,7 +144,7 @@ class Builder
      */
     public function orWhere($column, $operator = null, $value = null)
     {
-        return $this->where($column, $operator, $value, 'or');
+        return $this->where($column, $operator, $value, 'OR');
     }
 
     /**
@@ -159,7 +159,7 @@ class Builder
         foreach ($this->wheres as $where) {
             $param = ':' .$where['column'];
 
-            $wheres[] = strtoupper($where['boolean']) .' ' .$this->wrap($where['column']) .' ' .$where['operator'] .' ' .$param;
+            $wheres[] = $where['boolean'] .' ' .$this->wrap($where['column']) .' ' .$where['operator'] .' ' .$param;
 
             $this->params[$param] = $where['value'];
         }
