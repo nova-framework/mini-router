@@ -34,7 +34,11 @@ class Sample extends BaseController
         $content = '';
 
         //
-        $statement = DB::prepare('SELECT {users.id} FROM {users} WHERE id = :id');
+        $query = 'SELECT {users.id} FROM {users} WHERE id = :id';
+
+        $statement = DB::prepare($query);
+
+        $content .= '<pre>' .var_export($query, true) .'</pre>';
 
         $content .= '<pre>' .var_export($statement->queryString, true) .'</pre>';
 
