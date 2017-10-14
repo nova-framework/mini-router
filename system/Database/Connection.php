@@ -278,7 +278,7 @@ class Connection
             return ' ' .implode(', ', $sql) .' ';
         }
 
-        // For the WHEREs part of the SQL statement.
+        // For the WHERE parts of a SQL statement.
         else if ($type == 'wheres') {
             foreach ($data as $field => $value) {
                 $field = trim($field, ':');
