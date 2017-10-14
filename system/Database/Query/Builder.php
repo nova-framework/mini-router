@@ -21,6 +21,7 @@ class Builder
      * The query conditions.
      */
     protected $params = array();
+
     protected $wheres = array();
     protected $orders = array();
 
@@ -29,7 +30,7 @@ class Builder
 
 
     /**
-     * Create a new Query Builder instance.
+     * Create a new Builder instance.
      *
      * @param  \System\Database\Connection $connection
      * @param string $table
@@ -43,7 +44,7 @@ class Builder
     }
 
     /**
-     * Execute a query for a single record by ID.
+     * Get a single record by ID.
      *
      * @param int $id
      * @param  array  $columns
@@ -104,7 +105,7 @@ class Builder
     }
 
     /**
-     * Insert a new Record and get the value of the primary key.
+     * Insert a new record and get the last insert ID.
      *
      * @param array $data
      * @return array
@@ -119,7 +120,7 @@ class Builder
     }
 
     /**
-     * Execute an update query
+     * Execute an update query.
      *
      * @param  array   $data
      * @return boolean
@@ -210,8 +211,8 @@ class Builder
     /**
      * Add an "ORDER BY" clause to the query.
      *
-     * @param array|string $fields
-     * @param string $order
+     * @param string $column
+     * @param string $direction
      * @return static
      */
     public function orderBy($column, $direction = 'asc')
