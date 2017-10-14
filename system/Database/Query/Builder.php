@@ -25,8 +25,6 @@ class Builder
     protected $wheres = array();
     protected $orders = array();
 
-    protected $distinct = false;
-
     protected $offset;
     protected $limit;
 
@@ -43,18 +41,6 @@ class Builder
         $this->connection = $connection;
 
         $this->table = $table;
-    }
-
-    /**
-     * Force the query to only return distinct results.
-     *
-     * @return static
-     */
-    public function distinct()
-    {
-        $this->distinct = true;
-
-        return $this;
     }
 
     /**
@@ -94,7 +80,7 @@ class Builder
             $sql[] = $this->wrap($column);
         }
 
-        $query = 'SELECT ' .($this->distinct ? 'DISTINCT ' : '') .implode(', ', $sql) .' FROM {' .$this->table .'}' .$this->conditions();
+        $query = 'SELECT ' .implode(', ', $sql) .' FROM {' .$this->table .'}' .$this->conditions();
 
         return $this->connection->select($query, $this->params);
     }
@@ -170,7 +156,7 @@ class Builder
      * @param mixed|null $value
      * @return static
      */
-    public function where($column, $operator = null, $value = null, $boolean = 'AND')
+    public function where($column, $operator = null, $value = null, $boolean = 'and')
     {
         if (func_num_args() == 2) {
             list ($value, $operator) = array($operator, '=');
@@ -191,7 +177,7 @@ class Builder
      */
     public function orWhere($column, $operator = null, $value = null)
     {
-        return $this->where($column, $operator, $value, 'OR');
+        return $this->where($column, $operator, $value, 'or');
     }
 
     /**
@@ -253,7 +239,7 @@ class Builder
         foreach ($this->wheres as $where) {
             $param = ':' .$where['column'];
 
-            $sql[] = $where['boolean'] .' ' .$this->wrap($where['column']) .' ' .$where['operator'] .' ' .$param;
+            $sql[] = strtoupper($where['boolean']) .' ' .$this->wrap($where['column']) .' ' .$where['operator'] .' ' .$param;
 
             $this->params[$param] = $where['value'];
         }
