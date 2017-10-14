@@ -4,6 +4,7 @@ namespace System\Foundation\Exceptions;
 
 use System\Config\Config;
 use System\Foundation\Exceptions\FatalThrowableError;
+use System\View\View;
 
 use ErrorException;
 use Exception;
@@ -130,13 +131,17 @@ class Handler
      */
     protected function render($e)
     {
-        if ($this->debug) {
-            $message = sprintf('<p>%s in %s on line %d</p>', $e->getMessage(), $e->getFile(), $e->getLine());
+        if (! $this->debug) {
+            $content = '<h2 class="text-center"><strong>An application error occurred.</strong></h2>';
         } else {
-            $message = '<p>Whoops! An error occurred.</p>';
+            $content = sprintf('<p>%s in %s on line %d</p><br><pre>%s</pre>',
+                $e->getMessage(), $e->getFile(), $e->getLine(), $e->getTraceAsString()
+            );
         }
 
-        echo $message;
+        $view = View::make('Layouts/Default')->shares('title', 'Whoops!')->nest('content', 'Default', compact('content'));
+
+        echo $view->render();
     }
 
     /**

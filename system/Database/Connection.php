@@ -72,6 +72,7 @@ class Connection
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_STRINGIFY_FETCHES  => false,
             PDO::ATTR_EMULATE_PREPARES   => false,
+
             PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES {$charset} COLLATE '$collation'",
         );
 

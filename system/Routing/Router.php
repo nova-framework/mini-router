@@ -103,11 +103,7 @@ class Router
             throw new LogicException("Controller [$controller] has no method [$method].");
         }
 
-        if (method_exists($instance, 'callAction')) {
-            return $instance->callAction($method, $parameters);
-        }
-
-        return call_user_func_array(array($instance, $method), $parameters);
+        return $instance->callAction($method, $parameters);
     }
 
     protected function compileRoute($route)
