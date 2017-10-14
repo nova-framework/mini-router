@@ -65,23 +65,26 @@ class Router
 
         $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';
 
-        foreach ($this->getRoutes($method) as $route => $action) {
+        // Get the routes for the current HTTP method.
+        $routes = $this->routes[$method];
+
+        foreach ($routes as $route => $action) {
             list ($pattern, $variables) = $this->compileRoute($route);
 
-            if (preg_match($pattern, $path, $matches) === 1) {
-                // Extract the (named) parameters from matches.
-
-                $parameters = array_filter($matches, function ($key) use ($variables)
-                {
-                    return in_array($key, $variables);
-
-                }, ARRAY_FILTER_USE_KEY);
-
-                return $this->callAction($action, $parameters);
+            if (! preg_match($pattern, $path, $matches)) {
+                continue;
             }
+
+            $parameters = array_filter($matches, function ($key) use ($variables)
+            {
+                return in_array($key, $variables);
+
+            }, ARRAY_FILTER_USE_KEY);
+
+            return $this->callAction($action, $parameters);
         }
 
-        // If we reached here, no route was found for the current HTTP request.
+        // No route found for the current HTTP request.
 
         return View::make('Errors/404')->render();
     }
@@ -107,13 +110,12 @@ class Router
 
         $variables = array();
 
-        // Prepare the pattern and compute the associated regular expression.
         $result = preg_replace_callback('#/\{(.*?)(?:\:(.+?))?(\?)?\}#', function ($matches) use ($route, &$optionals, &$variables)
         {
             @list($text, $name, $condition, $optional) = $matches;
 
             if (in_array($name, $variables)) {
-                throw new LogicException("Route pattern [$route] cannot reference variable name [$name] more than once.");
+                throw new LogicException("Pattern [$route] cannot reference variable name [$name] more than once.");
             }
 
             $variables[] = $name;
@@ -127,7 +129,7 @@ class Router
 
                 $optionals++;
             } else if ($optionals > 0) {
-                throw new LogicException("Route pattern [$route] cannot reference variable [$name] after one or more optionals.");
+                throw new LogicException("Pattern [$route] cannot reference variable [$name] after one or more optionals.");
             }
 
             return $regexp;
@@ -137,15 +139,6 @@ class Router
         $pattern = '#^' .$result .str_repeat(')?', $optionals) .'$#s';
 
         return array($pattern, $variables);
-    }
-
-    protected function getRoutes($method = null)
-    {
-        if (! is_null($method)) {
-            return $this->routes[$method];
-        }
-
-        return $this->routes;
     }
 
     public static function getInstance()
@@ -161,8 +154,8 @@ class Router
     {
         $instance = static::getInstance();
 
-        if (array_key_exists($key = strtoupper($method), $instance->getRoutes())) {
-            array_unshift($parameters, array($key));
+        if (array_key_exists(strtoupper($method), $instance->routes)) {
+            array_unshift($parameters, array($method));
 
             $method = 'match';
         }
