@@ -198,7 +198,9 @@ class Builder
             $boolean = strtoupper($where['boolean']);
 
             if ($where['type'] == 'Null') {
-                $wheres[] = $boolean .' ' .$this->wrap($column) .' IS NULL';
+                $not = ($where['operator'] !== '=') ? 'NOT ' : '';
+
+                $wheres[] = $boolean .' ' .$this->wrap($column) .' IS ' .$not .'NULL';
 
                 continue;
             }
