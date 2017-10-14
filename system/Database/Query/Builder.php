@@ -22,18 +22,13 @@ class Builder
     protected $table;
 
     /**
-     * The WHERE conditions.
-     *
-     * @var array
+     * The conditions.
      */
     protected $wheres = array();
-
-    /**
-     * The WHERE parameters.
-     *
-     * @var array
-     */
     protected $params = array();
+
+    protected $limit;
+    protected $orders;
 
 
     /**
@@ -127,12 +122,10 @@ class Builder
             $sql[] = $this->wrap($field) ." = :{$field}";
         }
 
-        $query = ' ' .implode(', ', $sql) .' ';
-
-        $where = $this->compileWheres();
+        $query = ' ' .implode(', ', $sql) .' ' .$this->conditions();
 
         return $this->connection->update(
-            "UPDATE {{$this->table}} SET $query WHERE $where", array_merge($data, $this->params)
+            "UPDATE {{$this->table}} SET $query", array_merge($data, $this->params)
         );
     }
 
@@ -143,17 +136,48 @@ class Builder
      */
     public function delete()
     {
-        $where = $this->compileWheres();
+        $query = $this->conditions();
 
-        return $this->connection->delete("DELETE FROM {{$this->table}} WHERE $where", $this->params);
+        return $this->connection->delete("DELETE FROM {{$this->table}} $query", $this->params);
     }
 
     /**
-     * Build the SQL string for WHEREs and populate the parameters list.
+     * Set the "LIMIT" value of the query.
+     *
+     * @param int $limit
+     * @return \System\Database\Query\Builder|static
+     */
+    public function limit($value)
+    {
+        if ($value > 0) {
+            $this->limit = $value;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add an "ORDER BY" clause to the query.
+     *
+     * @param array|string $fields
+     * @param string $order
+     * @return \System\Database\Query\Builder|static
+     */
+    public function orderBy($column, $direction = 'asc')
+    {
+        $direction = (strtolower($direction) == 'asc') ? 'ASC' : 'DESC';
+
+        $this->orders[] = compact('column', 'direction');
+
+        return $this;
+    }
+
+    /**
+     * Build the SQL string and parameters for conditions.
      *
      * @return string
      */
-    protected function compileWheres()
+    protected function conditions()
     {
         $wheres = array();
 
@@ -165,7 +189,25 @@ class Builder
             $this->params[$param] = $where['value'];
         }
 
-        return preg_replace('/AND |OR /', '', implode(' ', $wheres), 1);
+        $query = 'WHERE ' .preg_replace('/AND |OR /', '', implode(' ', $wheres), 1);
+
+        // Orders
+        if (! empty($this->orders)) {
+            $orders = array();
+
+            foreach ($this->orders as $order) {
+                $orders[] = $this->wrap($order['column']) .' ' .$order['direction'];
+            }
+
+            $query .= ' ORDER BY ' .implode(', ', $orders);
+        }
+
+        // Limits
+        if (isset($this->limit)) {
+            $query .= ' LIMIT ' .intval($this->limit);
+        }
+
+        return $query;
     }
 
     /**
