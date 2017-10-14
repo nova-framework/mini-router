@@ -21,7 +21,7 @@ class Handler
     protected static $instance;
 
     /**
-     * Either or not we are in DEBUG mode.
+     * Whether or not we are in DEBUG mode.
      */
     protected $debug = false;
 
@@ -108,14 +108,14 @@ class Handler
         $date = date('M d, Y G:iA');
 
         $message = "Exception information:\n
-           Date: {$date}\n
-           Message: {$message}\n
-           Code: {$code}\n
-           File: {$file}\n
-           Line: {$line}\n
-           Stack trace:\n
-           {$trace}\n
-           ---------\n\n";
+    Date: {$date}\n
+    Message: {$message}\n
+    Code: {$code}\n
+    File: {$file}\n
+    Line: {$line}\n
+    Stack trace:\n
+{$trace}\n
+---------\n\n";
 
         //
         $path = STORAGE_PATH .'logs' .DS .'errors.log';
