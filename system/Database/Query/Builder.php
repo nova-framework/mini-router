@@ -43,7 +43,7 @@ class Builder
      * Set the table which the query is targeting.
      *
      * @param string $table
-     * @return \System\Database\Query\Builder|static
+     * @return static
      */
     public function from($table)
     {
@@ -121,7 +121,7 @@ class Builder
      * @param string $field
      * @param string|null $operator
      * @param mixed|null $value
-     * @return \System\Database\Query\Builder|static
+     * @return static
      */
     public function where($column, $operator = null, $value = null, $boolean = 'and')
     {
@@ -140,7 +140,7 @@ class Builder
      * @param  string  $column
      * @param  string  $operator
      * @param  mixed   $value
-     * @return \System\Database\Query\Builder|static
+     * @return static
      */
     public function orWhere($column, $operator = null, $value = null)
     {
@@ -157,11 +157,9 @@ class Builder
         $wheres = array();
 
         foreach ($this->wheres as $where) {
-            $column = $where['column'];
+            $param = ':' .$where['column'];
 
-            $param = ':' .$column;
-
-            $wheres[] = strtoupper($where['boolean']) .' ' .$this->wrap($column) .' ' .$where['operator'] .' ' .$param;
+            $wheres[] = strtoupper($where['boolean']) .' ' .$this->wrap($where['column']) .' ' .$where['operator'] .' ' .$param;
 
             $this->params[$param] = $where['value'];
         }
