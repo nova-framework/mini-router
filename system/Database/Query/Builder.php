@@ -86,7 +86,7 @@ class Builder
     }
 
     /**
-     * Execute an insert query.
+     * Execute an INSERT query.
      *
      * @param array $data
      * @return array
@@ -96,12 +96,14 @@ class Builder
         foreach ($data as $field => $value) {
             $fields[] = $this->wrap($field);
 
-            $values[] = ":{$field}";
+            $values[] = $param = ':' .$field;
+
+            $this->params[$param] = $value;
         }
 
         $query = 'INSERT INTO {' .$this->table .'} (' .implode(', ', $fields) .') VALUES (' .implode(', ', $values) .')';
 
-        return $this->connection->insert($query, $data);
+        return $this->connection->insert($query, $this->params);
     }
 
     /**
@@ -118,24 +120,28 @@ class Builder
     }
 
     /**
-     * Execute an update query.
+     * Execute an UPDATE query.
      *
-     * @param  array   $data
+     * @param  array  $data
      * @return boolean
      */
     public function update(array $data)
     {
         foreach ($data as $field => $value) {
-            $sql[] = $this->wrap($field) ." = :{$field}";
+            $param = ':' .$field;
+
+            $this->params[$param] = $value;
+
+            $sql[] = $this->wrap($field) .' = ' .$param;
         }
 
         $query = 'UPDATE {' .$this->table .'} SET ' .implode(', ', $sql) .$this->conditions();
 
-        return $this->connection->update($query, array_merge($data, $this->params));
+        return $this->connection->update($query, $this->params);
     }
 
     /**
-     * Execute a delete query.
+     * Execute a DELETE query.
      *
      * @return array
      */
@@ -241,19 +247,19 @@ class Builder
         foreach ($this->wheres as $where) {
             $column = strtoupper($where['boolean']) .' ' .$this->wrap($where['column']);
 
-            if (! isset($where['value'])) {
-                $not = ($where['operator'] !== '=') ? 'NOT ' : '';
+            $operator = $where['operator'];
 
-                $sql[] = $column .' IS ' .$not .'NULL';
+            if (! isset($where['value'])) {
+                $sql[] = $column .' IS ' .(($operator !== '=') ? 'NOT ' : '') .'NULL';
 
                 continue;
             }
 
             $param = ':' .$where['column'];
 
-            $this->params[$param] = $where['value'];
+            $sql[] = $column .' ' .$operator .' ' .$param;
 
-            $sql[] = $column .' ' .$where['operator'] .' ' .$param;
+            $this->params[$param] = $where['value'];
         }
 
         if (! empty($sql)) {
