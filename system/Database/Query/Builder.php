@@ -244,7 +244,9 @@ class Builder
             $column = strtoupper($where['boolean']) .' ' .$this->wrap($where['column']);
 
             if (! isset($where['value'])) {
-                $sql[] = $column .' IS ' .(($where['operator'] !== '=') ? 'NOT ' : '') .'NULL';
+                $not = ($where['operator'] !== '=') ? 'NOT ' : '';
+
+                $sql[] = $column .' IS ' .$not .'NULL';
 
                 continue;
             }
