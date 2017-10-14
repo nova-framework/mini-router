@@ -25,6 +25,8 @@ class Builder
     protected $wheres = array();
     protected $orders = array();
 
+    protected $distinct = false;
+
     protected $offset;
     protected $limit;
 
@@ -41,6 +43,18 @@ class Builder
         $this->connection = $connection;
 
         $this->table = $table;
+    }
+
+    /**
+     * Force the query to only return distinct results.
+     *
+     * @return static
+     */
+    public function distinct()
+    {
+        $this->distinct = true;
+
+        return $this;
     }
 
     /**
@@ -80,7 +94,7 @@ class Builder
             $sql[] = $this->wrap($column);
         }
 
-        $query = 'SELECT ' .implode(', ', $sql) .' FROM {' .$this->table .'}' .$this->conditions();
+        $query = 'SELECT ' .($this->distinct ? 'DISTINCT ' : '') .implode(', ', $sql) .' FROM {' .$this->table .'}' .$this->conditions();
 
         return $this->connection->select($query, $this->params);
     }
