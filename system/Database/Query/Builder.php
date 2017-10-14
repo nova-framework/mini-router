@@ -26,9 +26,6 @@ class Builder
      */
     protected $wheres = array();
     protected $params = array();
-    protected $orders = array();
-
-    protected $limit;
 
 
     /**
@@ -132,7 +129,7 @@ class Builder
             list ($value, $operator) = array($operator, '=');
         }
 
-        $this->wheres[] = compact('type', 'column', 'operator', 'value', 'boolean');
+        $this->wheres[] = compact('column', 'operator', 'value', 'boolean');
 
         return $this;
     }
@@ -151,46 +148,12 @@ class Builder
     }
 
     /**
-     * Add an "ORDER BY" clause to the query.
-     *
-     * @param array|string $fields
-     * @param string $order
-     * @return \System\Database\Query\Builder|static
-     */
-    public function orderBy($column, $direction = 'asc')
-    {
-        $direction = (strtolower($direction) == 'asc') ? 'ASC' : 'DESC';
-
-        $this->orders[] = compact('column', 'direction');
-
-        return $this;
-    }
-
-    /**
-     * Set the "LIMIT" value of the query.
-     *
-     * @param int $limit
-     * @return \System\Database\Query\Builder|static
-     */
-    public function limit($value)
-    {
-        if ($value > 0) {
-            $this->limit = $value;
-        }
-
-        return $this;
-    }
-
-    /**
      * Build the SQL string and parameters for conditions.
      *
      * @return string
      */
     protected function conditions()
     {
-        $query = '';
-
-        // Wheres
         $wheres = array();
 
         foreach ($this->wheres as $where) {
@@ -204,26 +167,8 @@ class Builder
         }
 
         if (! empty($wheres)) {
-            $query .= ' WHERE ' .preg_replace('/AND |OR /', '', implode(' ', $wheres), 1);
+            return ' WHERE ' .preg_replace('/AND |OR /', '', implode(' ', $wheres), 1);
         }
-
-        // Orders
-        $orders = array();
-
-        foreach ($this->orders as $order) {
-            $orders[] = $this->wrap($order['column']) .' ' .$order['direction'];
-        }
-
-        if (! empty($orders)) {
-            $query .= ' ORDER BY ' .implode(', ', $orders);
-        }
-
-        // Limits
-        if (isset($this->limit)) {
-            $query .= ' LIMIT ' .intval($this->limit);
-        }
-
-        return $query;
     }
 
     /**
