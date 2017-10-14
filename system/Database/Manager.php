@@ -11,11 +11,11 @@ use Exception;
 class Manager
 {
     /**
-     * Connection instances
+     * The Database Connection instances.
      *
      * @var \System\Database\Connection[]
      */
-    private static $instances = array();
+    protected static $instances = array();
 
 
     public static function connection($name = 'default')
