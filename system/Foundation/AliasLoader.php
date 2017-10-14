@@ -4,10 +4,9 @@ namespace System\Foundation;
 
 use System\Config\Config;
 
+use RuntimeException;
 
-/**
- * Aliases - make alias for classes for Views to use without declaring a use element.
- */
+
 class AliasLoader
 {
 
@@ -27,7 +26,7 @@ class AliasLoader
             // Check if the Class already exists.
             if (class_exists($classAlias)) {
                 // Bail out, a Class already exists with the same name.
-                throw new RuntimeException('A class ('.$classAlias.') already exists with the same name!');
+                throw new RuntimeException('A class [' .$classAlias .'] already exists with the same name.');
             }
 
             class_alias($className, $classAlias);
