@@ -47,7 +47,7 @@ function array_get($array, $key, $default = null)
  * @param  string  $key
  * @return bool
  */
-public function array_has($array, $key)
+function array_has($array, $key)
 {
     if (empty($array) || is_null($key)) {
         return false;
