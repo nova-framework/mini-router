@@ -18,7 +18,7 @@ class Config
      */
     public static function has($key)
     {
-        return ! is_null(array_get(static::$settings, $key));
+        return array_has(static::$settings, $key);
     }
 
     /**

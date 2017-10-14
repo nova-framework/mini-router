@@ -41,6 +41,32 @@ function array_get($array, $key, $default = null)
 }
 
 /**
+ * Check if an item exists in an array using "dot" notation.
+ *
+ * @param  array   $array
+ * @param  string  $key
+ * @return bool
+ */
+public function array_has($array, $key)
+{
+    if (empty($array) || is_null($key)) {
+        return false;
+    } else if (array_key_exists($key, $array)) {
+        return true;
+    }
+
+    foreach (explode('.', $key) as $segment) {
+        if (! is_array($array) || ! array_key_exists($segment, $array)) {
+            return false;
+        }
+
+        $array = $array[$segment];
+    }
+
+    return true;
+}
+
+/**
  * Set an array item to a given value using "dot" notation.
  *
  * If no key is given to the method, the entire array will be replaced.
