@@ -11,7 +11,9 @@ use Exception;
 class Manager
 {
     /**
-     * @var \System\Database\Connection[]  The Database Connection instances.
+     * The Connection instances.
+     *
+     * @var \System\Database\Connection[]
      */
     protected static $instances = array();
 
@@ -22,14 +24,11 @@ class Manager
             return static::$instances[$name];
         }
 
-        // Get the requested Connection configuration.
-        $config = Config::get('database.' .$name);
-
-        if (! is_null($config)) {
-            return static::$instances[$name] = new Connection($config);
+        if (is_null($config = Config::get('database.' .$name))) {
+            throw new Exception("Connection [$name] is not defined in configuration");
         }
 
-        throw new Exception("Connection name [$name] is not defined in your configuration");
+        return static::$instances[$name] = new Connection($config);
     }
 
     public static function __callStatic($method, $parameters)
