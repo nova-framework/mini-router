@@ -84,7 +84,7 @@ class Query
         $table = $this->getTable();
 
         //
-        $query = $connection->query('insert', $data);
+        $query = $connection->compile('insert', $data);
 
         return $connection->insertGetId("INSERT INTO {{$table}} $query", $data);
     }
@@ -93,24 +93,21 @@ class Query
      * Execute an update query
      *
      * @param  array   $data
-     * @param  array   $wheres
      * @return boolean
      */
-    public function update(array $data, array $wheres = array())
+    public function update(array $data)
     {
         $connection = $this->getConnection();
 
         $table = $this->getTable();
 
-        $wheres = array_merge($this->wheres, $wheres);
-
         //
-        $query = $connection->query('update', $data);
+        $query = $connection->compile('update', $data);
 
-        $whereSql = $this->compileWheres($wheres);
+        $where = $connection->compile('wheres', $this->wheres);
 
-        return $this->connection->update(
-            "UPDATE {{$table}} SET $query WHERE " .$whereSql, array_merge($data, $wheres)
+        return $connection->update(
+            "UPDATE {{$table}} SET $query WHERE $where", array_merge($data, $this->wheres)
         );
     }
 
@@ -126,28 +123,9 @@ class Query
         $table = $this->getTable();
 
         //
-        $whereSql = $this->compileWheres($this->wheres);
+        $where = $connection->compile('wheres', $this->wheres);
 
-        return $connection->delete("DELETE FROM {{$table}} WHERE " .$whereSql, $this->wheres);
-    }
-
-    /**
-     * Compile the wheres part of a SQL statement.
-     *
-     * @param  array   $wheres
-     * @return string
-     */
-    protected function compileWheres(array $wheres)
-    {
-        $connection = $this->getConnection();
-
-        foreach ($wheres as $field => $value) {
-            $field = trim($field, ':');
-
-            $sql[] = $connection->wrap($field) ." = :{$field}";
-        }
-
-        return implode(' AND ', $sql);
+        return $connection->delete("DELETE FROM {{$table}} WHERE $where", $this->wheres);
     }
 
     /**

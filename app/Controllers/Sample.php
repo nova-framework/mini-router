@@ -61,7 +61,7 @@ class Sample extends BaseController
             'activated' => 0,
         );
 
-        $query = DB::query('insert', $data);
+        $query = DB::compile('insert', $data);
 
         $content .= '<pre>' .var_export($query, true) .'</pre>';
 
@@ -83,7 +83,7 @@ class Sample extends BaseController
             'activated' => 1,
         );
 
-        $query = DB::query('update', $data);
+        $query = DB::compile('update', $data);
 
         $content .= '<pre>' .var_export($query, true) .'</pre>';
 

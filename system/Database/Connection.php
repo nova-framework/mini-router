@@ -252,7 +252,7 @@ class Connection
      * @param  string  $data
      * @return string
      */
-    public function query($type, array $data)
+    public function compile($type, array $data)
     {
         // For INSERT:
         if ($type == 'insert') {
@@ -276,6 +276,17 @@ class Connection
             }
 
             return ' ' .implode(', ', $sql) .' ';
+        }
+
+        // For the WHEREs part of the SQL statement.
+        else if ($type == 'wheres') {
+            foreach ($data as $field => $value) {
+                $field = trim($field, ':');
+
+                $sql[] = $this->wrap($field) ." = :{$field}";
+            }
+
+            return implode(' AND ', $sql);
         }
     }
 
