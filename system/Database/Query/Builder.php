@@ -51,7 +51,7 @@ class Builder
      * Set the table which the query is targeting.
      *
      * @param string $table
-     * @return \System\Database\Query|static
+     * @return \System\Database\Query\Builder|static
      */
     public function from($table)
     {
@@ -66,7 +66,7 @@ class Builder
      * @param string $field
      * @param string|null $operator
      * @param mixed|null $value
-     * @return \System\Database\Query|static
+     * @return \System\Database\Query\Builder|static
      */
     public function where($column, $operator = null, $value = null, $boolean = 'and')
     {
@@ -100,19 +100,17 @@ class Builder
      */
     public function insert(array $data)
     {
-        $connection = $this->getConnection();
-
         foreach ($data as $field => $value) {
-            $fields[] = $connection->wrap($field);
+            $fields[] = $this->wrap($field);
 
             $values[] = ":{$field}";
         }
 
         $query = '(' .implode(', ', $fields) .') VALUES (' .implode(', ', $values) .')';
 
-        $connection->insert("INSERT INTO {" .$this->getTable() ."} $query", $data);
+        $this->connection->insert("INSERT INTO {{$this->table}} $query", $data);
 
-        return $connection->lastInsertId();
+        return $this->connection->lastInsertId();
     }
 
     /**
@@ -123,20 +121,18 @@ class Builder
      */
     public function update(array $data)
     {
-        $connection = $this->getConnection();
-
         foreach ($data as $field => $value) {
             $field = trim($field, ':');
 
-            $sql[] = $connection->wrap($field) ." = :{$field}";
+            $sql[] = $this->wrap($field) ." = :{$field}";
         }
 
         $query = ' ' .implode(', ', $sql) .' ';
 
         $where = $this->compileWheres();
 
-        return $connection->update(
-            "UPDATE {" .$this->getTable() ."} SET $query WHERE $where", array_merge($data, $this->params)
+        return $this->connection->update(
+            "UPDATE {{$this->table}} SET $query WHERE $where", array_merge($data, $this->params)
         );
     }
 
@@ -147,11 +143,9 @@ class Builder
      */
     public function delete()
     {
-        $connection = $this->getConnection();
-
         $where = $this->compileWheres();
 
-        return $connection->delete("DELETE FROM {" .$this->getTable() ."} WHERE $where", $this->params);
+        return $this->connection->delete("DELETE FROM {{$this->table}} WHERE $where", $this->params);
     }
 
     /**
@@ -161,15 +155,12 @@ class Builder
      */
     protected function compileWheres()
     {
-        $connection = $this->getConnection();
-
-        //
         $wheres = array();
 
         foreach ($this->wheres as $where) {
             $param = ':' .$where['column'];
 
-            $wheres[] = strtoupper($where['boolean']) .' ' .$connection->wrap($where['column']) .' ' .$where['operator'] .' ' .$param;
+            $wheres[] = strtoupper($where['boolean']) .' ' .$this->wrap($where['column']) .' ' .$where['operator'] .' ' .$param;
 
             $this->params[$param] = $where['value'];
         }
@@ -178,22 +169,13 @@ class Builder
     }
 
     /**
-     * Get the Connection instance.
+     * Wrap a value in keyword identifiers.
      *
-     * @return \System\Database\Connection
-     */
-    public function getConnection()
-    {
-        return $this->connection;
-    }
-
-    /**
-     * Get the table which the query is targeting.
-     *
+     * @param  string  $value
      * @return string
      */
-    public function getTable()
+    protected function wrap($value)
     {
-        return $this->table;
+        return $this->connection->wrap($value);
     }
 }
