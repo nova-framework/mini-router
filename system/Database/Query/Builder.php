@@ -132,7 +132,9 @@ class Builder
             list ($value, $operator) = array($operator, '=');
         }
 
-        $this->wheres[] = compact('column', 'operator', 'value', 'boolean');
+        $type = is_null($value) ? 'Null' : 'Basic';
+
+        $this->wheres[] = compact('type', 'column', 'operator', 'value', 'boolean');
 
         return $this;
     }
@@ -191,9 +193,19 @@ class Builder
         $wheres = array();
 
         foreach ($this->wheres as $where) {
-            $param = ':' .$where['column'];
+            $column = $where['column'];
 
-            $wheres[] = strtoupper($where['boolean']) .' ' .$this->wrap($where['column']) .' ' .$where['operator'] .' ' .$param;
+            $boolean = strtoupper($where['boolean']);
+
+            if ($where['type'] == 'Null') {
+                $wheres[] = $boolean .' ' .$this->wrap($column) .' IS NULL';
+
+                continue;
+            }
+
+            $param = ':' .$column;
+
+            $wheres[] =  $boolean .' ' .$this->wrap($column) .' ' .$where['operator'] .' ' .$param;
 
             $this->params[$param] = $where['value'];
         }
