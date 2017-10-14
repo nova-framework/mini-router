@@ -110,7 +110,7 @@ class Query
             $values[] = ":{$field}";
         }
 
-        $query = "(" .implode(', ', $fields) .") VALUES (" .implode(', ', $values) .")";
+        $query = '(' .implode(', ', $fields) .') VALUES (' .implode(', ', $values) .')';
 
         return $connection->insertGetId("INSERT INTO {{$table}} $query", $data);
     }

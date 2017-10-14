@@ -50,7 +50,7 @@ class Connection
 
         $this->tablePrefix = $config['prefix'];
 
-        $this->wrapString = $config['wrapper'];
+        $this->wrapper = $config['wrapper'];
 
         //
         $this->setFetchMode($this->fetchMode);
@@ -137,20 +137,6 @@ class Connection
     public function insert($query, array $bindings = array())
     {
         return $this->statement($query, $bindings);
-    }
-
-    /**
-     * Run an insert statement against the database and get the value of the primary key.
-     *
-     * @param  string  $query
-     * @param  array   $bindings
-     * @return bool
-     */
-    public function insertGetId($query, array $bindings = array())
-    {
-        $this->statement($query, $bindings);
-
-        return $this->lastInsertId();
     }
 
     /**
