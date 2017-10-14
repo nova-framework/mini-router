@@ -53,6 +53,20 @@ class Sample extends BaseController
         $content .= '<pre>' .var_export($user, true) .'</pre>';
 
         //
+        $users = DB::select('SELECT id, username, realname, email FROM {users}');
+
+        $content .= '<pre>' .var_export($users, true) .'</pre>';
+
+        //
+        $users = DB::table('users')
+            ->where('username', '!=', 'admin')
+            ->limit(2)
+            ->orderBy('realname', 'desc')
+            ->get(array('id', 'username', 'realname', 'email'));
+
+        $content .= '<pre>' .var_export($users, true) .'</pre>';
+
+        //
         $data = array(
             'username'  => 'testuser',
             'password'  => 'password',
