@@ -71,7 +71,7 @@ class Router
         foreach ($routes as $route => $action) {
             list ($pattern, $variables) = $this->compileRoute($route);
 
-            if (! preg_match($pattern, $path, $matches)) {
+            if (preg_match($pattern, $path, $matches) !== 1) {
                 continue;
             }
 
