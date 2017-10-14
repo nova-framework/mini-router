@@ -22,14 +22,14 @@ class Query
     protected $table;
 
     /**
-     * The conditions.
+     * The WHERE conditions.
      *
      * @var array
      */
     protected $wheres = array();
 
     /**
-     * The parameters.
+     * The WHERE parameters.
      *
      * @var array
      */
@@ -102,8 +102,6 @@ class Query
     {
         $connection = $this->getConnection();
 
-        $table = $this->getTable();
-
         foreach ($data as $field => $value) {
             $fields[] = $connection->wrap($field);
 
@@ -112,7 +110,9 @@ class Query
 
         $query = '(' .implode(', ', $fields) .') VALUES (' .implode(', ', $values) .')';
 
-        return $connection->insertGetId("INSERT INTO {{$table}} $query", $data);
+        $connection->insert("INSERT INTO {" .$this->getTable() ."} $query", $data);
+
+        return $connection->lastInsertId();
     }
 
     /**
@@ -125,8 +125,6 @@ class Query
     {
         $connection = $this->getConnection();
 
-        $table = $this->getTable();
-
         foreach ($data as $field => $value) {
             $field = trim($field, ':');
 
@@ -138,7 +136,7 @@ class Query
         $where = $this->compileWheres();
 
         return $connection->update(
-            "UPDATE {{$table}} SET $query WHERE $where", array_merge($data, $this->params)
+            "UPDATE {" .$this->getTable() ."} SET $query WHERE $where", array_merge($data, $this->params)
         );
     }
 
@@ -151,16 +149,13 @@ class Query
     {
         $connection = $this->getConnection();
 
-        $table = $this->getTable();
-
-        //
         $where = $this->compileWheres();
 
-        return $connection->delete("DELETE FROM {{$table}} WHERE $where", $this->params);
+        return $connection->delete("DELETE FROM {" .$this->getTable() ."} WHERE $where", $this->params);
     }
 
     /**
-     * Build the SQL string for WHEREs.
+     * Build the SQL string for WHEREs and populate the parameters list.
      *
      * @return string
      */
