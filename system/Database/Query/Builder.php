@@ -32,24 +32,14 @@ class Builder
      * Create a new Query Builder instance.
      *
      * @param  \System\Database\Connection $connection
+     * @param string $table
      * @return void
      */
-    public function __construct(Connection $connection)
+    public function __construct(Connection $connection, $table)
     {
         $this->connection = $connection;
-    }
 
-    /**
-     * Set the table which the query is targeting.
-     *
-     * @param string $table
-     * @return static
-     */
-    public function from($table)
-    {
         $this->table = $table;
-
-        return $this;
     }
 
     /**

@@ -82,13 +82,11 @@ class Connection
      * Begin a Fluent Query against a database table.
      *
      * @param  string  $table
-     * @return \System\Database\Query
+     * @return \System\Database\Query\Builder
      */
     public function table($table)
     {
-        $query = new QueryBuilder($this);
-
-        return $query->from($table);
+        return new QueryBuilder($this, $table);
     }
 
     /**
