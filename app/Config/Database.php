@@ -10,5 +10,8 @@ return array(
         'prefix'    => PREFIX,
         'charset'   => 'utf8',
         'collation' => 'utf8_general_ci',
+
+        // The string used to wrap tables and keywords.
+        'wrapper'   => '`',
     ),
 );

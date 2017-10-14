@@ -2,8 +2,7 @@
 
 namespace System\Database;
 
-use System\Database\Query\Builder as QueryBuilder;
-use System\Database\Query\Expression;
+use System\Database\Query;
 
 use \PDO;
 
@@ -31,6 +30,13 @@ class Connection
      */
     protected $tablePrefix = '';
 
+    /**
+     * The table prefix for the connection.
+     *
+     * @var string
+     */
+    protected $wrapper = '`';
+
 
     /**
      * Create a new connection instance.
@@ -44,6 +50,9 @@ class Connection
 
         $this->tablePrefix = $config['prefix'];
 
+        $this->wrapString = $config['wrapper'];
+
+        //
         $this->setFetchMode($this->fetchMode);
     }
 
@@ -77,24 +86,13 @@ class Connection
      * Begin a Fluent Query against a database table.
      *
      * @param  string  $table
-     * @return \System\Database\Query\Builder
+     * @return \System\Database\Query
      */
     public function table($table)
     {
-        $query = new QueryBuilder($this);
+        $query = new Query($this);
 
         return $query->from($table);
-    }
-
-    /**
-     * Get a new raw query expression.
-     *
-     * @param  mixed  $value
-     * @return \System\Database\Query\Expression
-     */
-    public function raw($value)
-    {
-        return new Expression($value);
     }
 
     /**
@@ -106,7 +104,7 @@ class Connection
      */
     public function selectOne($query, $bindings = array())
     {
-        $statement = $this->getPdo()->prepare($query);
+        $statement = $this->getPdo()->prepare($this->prepare($query));
 
         $statement->execute($bindings);
 
@@ -122,7 +120,7 @@ class Connection
      */
     public function select($query, array $bindings = array())
     {
-        $statement = $this->getPdo()->prepare($query);
+        $statement = $this->getPdo()->prepare($this->prepare($query));
 
         $statement->execute($bindings);
 
@@ -139,6 +137,20 @@ class Connection
     public function insert($query, array $bindings = array())
     {
         return $this->statement($query, $bindings);
+    }
+
+    /**
+     * Run an insert statement against the database and get the value of the primary key.
+     *
+     * @param  string  $query
+     * @param  array   $bindings
+     * @return bool
+     */
+    public function insertGetId($query, array $bindings = array())
+    {
+        $this->statement($query, $bindings);
+
+        return $this->lastInsertId();
     }
 
     /**
@@ -174,7 +186,9 @@ class Connection
      */
     public function statement($query, array $bindings = array())
     {
-        return $this->getPdo()->prepare($query)->execute($bindings);
+        $statement = $this->getPdo()->prepare($this->prepare($query));
+
+        return $statement->execute($bindings);
     }
 
     /**
@@ -186,7 +200,7 @@ class Connection
      */
     public function affectingStatement($query, array $bindings = array())
     {
-        $statement = $this->getPdo()->prepare($query);
+        $statement = $this->getPdo()->prepare($this->prepare($query));
 
         $statement->execute($bindings);
 
@@ -206,6 +220,83 @@ class Connection
     }
 
     /**
+     * Parse the table variables and add the table prefix.
+     *
+     * @param  string  $query
+     * @return string
+     */
+    public function prepare($query)
+    {
+        $prefix = $this->getTablePrefix();
+
+        return preg_replace_callback('#\{(.*?)\}#', function ($matches) use ($prefix)
+        {
+            list ($table, $field) = array_pad(explode('.', $matches[1], 2), 2, null);
+
+            //
+            $result = $this->wrap($prefix .$table);
+
+            if (! is_null($field)) {
+                $result .= '.' . $this->wrap($field);
+            }
+
+            return $result;
+
+        }, $query);
+    }
+
+    /**
+     * Generates partial SQL statements for INSERT and UPDATE.
+     *
+     * @param  string  $type
+     * @param  string  $data
+     * @return string
+     */
+    public function query($type, array $data)
+    {
+        // For INSERT:
+        if ($type == 'insert') {
+            foreach ($data as $field => $value) {
+                $field = trim($field, ':');
+
+                $fields[] = $this->wrap($field);
+
+                $values[] = ":{$field}";
+            }
+
+            return " (" .implode(', ', $fields) .") VALUES (" .implode(', ', $values) .") ";
+        }
+
+        // For UPDATE:
+        else if ($type == 'update') {
+            foreach ($data as $field => $value) {
+                $field = trim($field, ':');
+
+                $sql[] = $this->wrap($field) ." = :{$field}";
+            }
+
+            return ' ' .implode(', ', $sql) .' ';
+        }
+    }
+
+    /**
+     * Wrap a single string in keyword identifiers.
+     *
+     * @param  string  $value
+     * @return string
+     */
+    public function wrap($value)
+    {
+        if ($value === '*') {
+            return $value;
+        }
+
+        $wrapper = $this->getWrapper();
+
+        return $wrapper .$value .$wrapper;
+    }
+
+    /**
      * Get the PDO instance.
      *
      * @return PDO
@@ -213,6 +304,16 @@ class Connection
     public function getPdo()
     {
         return $this->pdo;
+    }
+
+    /**
+     * Returns the wrapper string.
+     *
+     * @return string
+     */
+    public function getWrapper()
+    {
+        return $this->wrapper;
     }
 
     /**
