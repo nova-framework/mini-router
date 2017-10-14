@@ -69,17 +69,6 @@ class Dispatcher
     }
 
     /**
-     * Register an event subscriber with the dispatcher.
-     *
-     * @param  string  $subscriber
-     * @return void
-     */
-    public function subscribe($subscriber)
-    {
-        $subscriber->subscribe($this);
-    }
-
-    /**
      * Fire an event until the first non-null response is returned.
      *
      * @param  string  $event
