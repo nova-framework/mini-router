@@ -231,7 +231,9 @@ class Connection
             return $value;
         }
 
-        return $this->wrapper .$value .$this->wrapper;
+        $wrapper = $this->getWrapper();
+
+        return $wrapper .$value .$wrapper;
     }
 
     /**
