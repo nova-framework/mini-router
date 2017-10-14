@@ -10,30 +10,22 @@ use \PDO;
 class Connection
 {
     /**
-     * The active PDO connection.
-     *
-     * @var PDO
+     * @var \PDO The active PDO connection.
      */
     protected $pdo;
 
     /**
-     * The default fetch mode of the connection.
-     *
-     * @var int
+     * @var int The default fetch mode of the connection.
      */
     protected $fetchMode = PDO::FETCH_OBJ;
 
     /**
-     * The table prefix for the connection.
-     *
-     * @var string
+     * @var string The table prefix for the connection.
      */
     protected $tablePrefix = '';
 
     /**
-     * The table prefix for the connection.
-     *
-     * @var string
+     * @var string The table prefix for the connection.
      */
     protected $wrapper = '`';
 

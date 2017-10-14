@@ -6,30 +6,22 @@ namespace System\Events;
 class Dispatcher
 {
     /**
-     * The active Events Dispatcher instance.
-     *
-     * @var \System\Events\Dispatcher
+     * @var \System\Events\Dispatcher  The active Events Dispatcher instance.
      */
     protected static $instance;
 
     /**
-     * The registered event listeners.
-     *
-     * @var array
+     * @var array  The registered event listeners.
      */
     protected $listeners = array();
 
     /**
-     * The sorted event listeners.
-     *
-     * @var array
+     * @var array  The sorted event listeners.
      */
     protected $sorted = array();
 
     /**
-     * The event firing stack.
-     *
-     * @var array
+     * @var array  The event firing stack.
      */
     protected $firing = array();
 

@@ -8,16 +8,12 @@ use System\Database\Connection;
 class Builder
 {
     /**
-     * The Database Connection instance.
-     *
-     * @var \System\Database\Connection
+     * @var \System\Database\Connection  The Database Connection instance.
      */
     protected $connection;
 
     /**
-     * The table which the query is targeting.
-     *
-     * @var string
+     * @var string  The table which the query is targeting.
      */
     protected $table;
 

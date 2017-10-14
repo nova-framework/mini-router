@@ -98,7 +98,6 @@ class View
     {
         $data = array_merge(static::$shared, $this->data);
 
-        // All nested Views are evaluated before the main View.
         foreach ($data as $key => $value) {
             if ($value instanceof View) {
                 $data[$key] = $value->render();
@@ -130,13 +129,7 @@ class View
      */
     public static function share($key, $value = null)
     {
-        if (! is_array($key)) {
-            return static::$shared[$key] = $value;
-        }
-
-        foreach ($key as $innerKey => $innerValue) {
-            static::share($innerKey, $innerValue);
-        }
+        return static::$shared[$key] = $value;
     }
 
     /**
@@ -206,7 +199,7 @@ class View
             return $this->with($name, array_shift($params));
         }
 
-        throw new BadMethodCallException("Method [$method] does not exist on " .get_class($this));
+        throw new BadMethodCallException("Method [$method] does not exist");
     }
 }
 

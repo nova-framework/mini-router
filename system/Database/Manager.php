@@ -11,9 +11,7 @@ use Exception;
 class Manager
 {
     /**
-     * The Database Connection instances.
-     *
-     * @var \System\Database\Connection[]
+     * @var \System\Database\Connection[]  The Database Connection instances.
      */
     protected static $instances = array();
 
