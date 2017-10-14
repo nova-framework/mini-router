@@ -201,14 +201,11 @@ class Connection
      */
     public function prepare($query)
     {
-        $prefix = $this->getTablePrefix();
-
-        return preg_replace_callback('#\{(.*?)\}#', function ($matches) use ($prefix)
+        return preg_replace_callback('#\{(.*?)\}#', function ($matches)
         {
-            list ($table, $field) = array_pad(explode('.', $matches[1], 2), 2, null);
+            @list ($table, $field) = explode('.', $matches[1], 2);
 
-            //
-            $result = $this->wrap($prefix .$table);
+            $result = $this->wrap($this->getTablePrefix() .$table);
 
             if (! is_null($field)) {
                 $result .= '.' . $this->wrap($field);
