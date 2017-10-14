@@ -139,7 +139,7 @@ class Handler
             );
         }
 
-        $view = View::make('Layouts/Default')->shares('title', 'Whoops!')->nest('content', 'Default', compact('content'));
+        $view = View::make('Layouts/Default')->nest('content', 'Default', compact('content'))->shares('title', 'Whoops!');
 
         echo $view->render();
     }
