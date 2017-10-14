@@ -61,56 +61,6 @@ class Sample extends BaseController
             'activated' => 0,
         );
 
-        $query = DB::compile('insert', $data);
-
-        $content .= '<pre>' .var_export($query, true) .'</pre>';
-
-        //
-        $userId = DB::insertGetId('INSERT INTO {users} ' .$query, $data);
-
-        $content .= '<pre>' .var_export($userId, true) .'</pre>';
-
-        //
-        $user = DB::selectOne('SELECT {users.*} FROM {users} WHERE id = :id', array('id' => $userId));
-
-        $content .= '<pre>' .var_export($user, true) .'</pre>';
-
-        $data = array(
-            'username'  => 'testuser2',
-            'password'  => 'another password',
-            'realname'  => 'Updated Test User',
-            'email'     => 'test@testuser.dev',
-            'activated' => 1,
-        );
-
-        $query = DB::compile('update', $data);
-
-        $content .= '<pre>' .var_export($query, true) .'</pre>';
-
-        //
-        $result = DB::insert('UPDATE {users} SET ' .$query .' WHERE id = :id', array_merge($data, array('id' => $userId)));
-
-        $content .= '<pre>' .var_export($result, true) .'</pre>';
-
-        //
-        $user = DB::selectOne('SELECT {users.*} FROM {users} WHERE id = :id', array('id' => $userId));
-
-        $content .= '<pre>' .var_export($user, true) .'</pre>';
-
-        //
-        $result = DB::delete('DELETE FROM {users} WHERE id = :id', array(':id' => $userId));
-
-        $content .= '<pre>' .var_export($result, true) .'</pre>';
-
-        //
-        $data = array(
-            'username'  => 'testuser',
-            'password'  => 'password',
-            'realname'  => 'Test User',
-            'email'     => 'test@testuser.dev',
-            'activated' => 0,
-        );
-
         $userId = DB::table('users')->insert($data);
 
         $content .= '<pre>' .var_export($userId, true) .'</pre>';

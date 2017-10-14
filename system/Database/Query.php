@@ -28,6 +28,13 @@ class Query
      */
     protected $wheres = array();
 
+    /**
+     * The parameters.
+     *
+     * @var array
+     */
+    protected $params = array();
+
 
     /**
      * Create a new Query Builder instance.
@@ -57,18 +64,32 @@ class Query
      * Add one or more conditions.
      *
      * @param string $field
+     * @param string|null $operator
      * @param mixed|null $value
      * @return \System\Database\Query|static
      */
-    public function where($field, $value = null)
+    public function where($column, $operator = null, $value = null, $boolean = 'and')
     {
-        if (! is_array($field)) {
-            $field = array($field => $value);
+        if (func_num_args() == 2) {
+            list ($value, $operator) = array($operator, '=');
         }
 
-        $this->wheres = array_merge($this->wheres, $field);
+        $this->wheres[] = compact('column', 'operator', 'value', 'boolean');
 
         return $this;
+    }
+
+    /**
+     * Add an "OR WHERE" clause to the query.
+     *
+     * @param  string  $column
+     * @param  string  $operator
+     * @param  mixed   $value
+     * @return \System\Database\Query\Builder|static
+     */
+    public function orWhere($column, $operator = null, $value = null)
+    {
+        return $this->where($column, $operator, $value, 'or');
     }
 
     /**
@@ -83,8 +104,13 @@ class Query
 
         $table = $this->getTable();
 
-        //
-        $query = $connection->compile('insert', $data);
+        foreach ($data as $field => $value) {
+            $fields[] = $connection->wrap($field);
+
+            $values[] = ":{$field}";
+        }
+
+        $query = "(" .implode(', ', $fields) .") VALUES (" .implode(', ', $values) .")";
 
         return $connection->insertGetId("INSERT INTO {{$table}} $query", $data);
     }
@@ -101,13 +127,18 @@ class Query
 
         $table = $this->getTable();
 
-        //
-        $query = $connection->compile('update', $data);
+        foreach ($data as $field => $value) {
+            $field = trim($field, ':');
 
-        $where = $connection->compile('wheres', $this->wheres);
+            $sql[] = $connection->wrap($field) ." = :{$field}";
+        }
+
+        $query = ' ' .implode(', ', $sql) .' ';
+
+        $where = $this->compileWheres();
 
         return $connection->update(
-            "UPDATE {{$table}} SET $query WHERE $where", array_merge($data, $this->wheres)
+            "UPDATE {{$table}} SET $query WHERE $where", array_merge($data, $this->params)
         );
     }
 
@@ -123,9 +154,32 @@ class Query
         $table = $this->getTable();
 
         //
-        $where = $connection->compile('wheres', $this->wheres);
+        $where = $this->compileWheres();
 
-        return $connection->delete("DELETE FROM {{$table}} WHERE $where", $this->wheres);
+        return $connection->delete("DELETE FROM {{$table}} WHERE $where", $this->params);
+    }
+
+    /**
+     * Build the SQL string for WHEREs.
+     *
+     * @return string
+     */
+    protected function compileWheres()
+    {
+        $connection = $this->getConnection();
+
+        //
+        $wheres = array();
+
+        foreach ($this->wheres as $where) {
+            $param = ':' .$where['column'];
+
+            $wheres[] = strtoupper($where['boolean']) .' ' .$connection->wrap($where['column']) .' ' .$where['operator'] .' ' .$param;
+
+            $this->params[$param] = $where['value'];
+        }
+
+        return preg_replace('/AND |OR /', '', implode(' ', $wheres), 1);
     }
 
     /**

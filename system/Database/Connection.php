@@ -246,51 +246,6 @@ class Connection
     }
 
     /**
-     * Generates partial SQL statements for INSERT and UPDATE.
-     *
-     * @param  string  $type
-     * @param  string  $data
-     * @return string
-     */
-    public function compile($type, array $data)
-    {
-        // For INSERT:
-        if ($type == 'insert') {
-            foreach ($data as $field => $value) {
-                $field = trim($field, ':');
-
-                $fields[] = $this->wrap($field);
-
-                $values[] = ":{$field}";
-            }
-
-            return " (" .implode(', ', $fields) .") VALUES (" .implode(', ', $values) .") ";
-        }
-
-        // For UPDATE:
-        else if ($type == 'update') {
-            foreach ($data as $field => $value) {
-                $field = trim($field, ':');
-
-                $sql[] = $this->wrap($field) ." = :{$field}";
-            }
-
-            return ' ' .implode(', ', $sql) .' ';
-        }
-
-        // For the WHERE parts of a SQL statement.
-        else if ($type == 'wheres') {
-            foreach ($data as $field => $value) {
-                $field = trim($field, ':');
-
-                $sql[] = $this->wrap($field) ." = :{$field}";
-            }
-
-            return implode(' AND ', $sql);
-        }
-    }
-
-    /**
      * Wrap a single string in keyword identifiers.
      *
      * @param  string  $value
