@@ -111,18 +111,6 @@ class Model
     }
 
     /**
-     * Update many Records in the database.
-     *
-     * @param  array  $ids
-     * @param  array  $attributes
-     * @return mixed
-     */
-    public function updateMany(array $ids, array $attributes = array())
-    {
-        return $this->newQuery()->where($this->getKeyName(), $ids)->update($attributes);
-    }
-
-    /**
      * Delete the Record from the database.
      *
      * @return bool|null
@@ -130,18 +118,6 @@ class Model
     public function delete($id)
     {
         $this->newQuery()->where($this->getKeyName(), $id)->delete();
-
-        return true;
-    }
-
-    /**
-     * Delete many Records from the database.
-     *
-     * @return bool|null
-     */
-    public function deleteMany(array $ids)
-    {
-        $this->newQuery()->where($this->getKeyName(), $ids)->delete();
 
         return true;
     }
