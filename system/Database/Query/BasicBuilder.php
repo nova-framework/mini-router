@@ -41,7 +41,7 @@ class BasicBuilder
     }
 
     /**
-     * Execute an insert query.
+     * Execute an INSERT query.
      *
      * @param array $data
      * @return array
@@ -64,7 +64,7 @@ class BasicBuilder
     }
 
     /**
-     * Execute an update query
+     * Execute an UPDATE query
      *
      * @param  array   $data
      * @return boolean
@@ -83,7 +83,7 @@ class BasicBuilder
     }
 
     /**
-     * Execute a delete query.
+     * Execute a DELETE query.
      *
      * @return array
      */
