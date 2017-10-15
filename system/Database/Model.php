@@ -53,17 +53,6 @@ class Model
     }
 
     /**
-     * Get all of the Records from the database.
-     *
-     * @param  array  $columns
-     * @return array
-     */
-    public function all($columns = array('*'))
-    {
-        return $this->newQuery()->get($columns);
-    }
-
-    /**
      * Find a Record by its primary key.
      *
      * @param  mixed  $id
@@ -73,6 +62,17 @@ class Model
     public function find($id, $columns = array('*'))
     {
         return $this->newQuery()->where($this->getKeyName(), $id)->first($columns);
+    }
+
+    /**
+     * Get all of the Records from the database.
+     *
+     * @param  array  $columns
+     * @return array
+     */
+    public function findAll($columns = array('*'))
+    {
+        return $this->newQuery()->get($columns);
     }
 
     /**

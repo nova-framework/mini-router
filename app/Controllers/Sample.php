@@ -147,7 +147,7 @@ class Sample extends BaseController
         $content .= '<pre>' .var_export($user, true) .'</pre><br>';
 
         //
-        $users = $this->users->all();
+        $users = $this->users->findAll();
 
         $content .= '<pre>' .var_export($users, true) .'</pre><br>';
 
