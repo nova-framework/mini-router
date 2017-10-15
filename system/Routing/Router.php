@@ -80,25 +80,30 @@ class Router
 
             }, ARRAY_FILTER_USE_BOTH);
 
-            if ($action instanceof Closure) {
-                return call_user_func_array($action, $parameters);
-            }
-
-            list ($controller, $method) = explode('@', $action);
-
-            if (! class_exists($controller)) {
-                throw new LogicException("Controller [$controller] not found.");
-            }
-
-            // Create the Controller instance and check its method.
-            else if (! method_exists($instance = new $controller(), $method)) {
-                throw new LogicException("Controller [$controller] has no method [$method].");
-            }
-
-            return $instance->callAction($method, $parameters);
+            return $this->callAction($action, $parameters);
         }
 
         throw new HttpException(404, 'Page not found.');
+    }
+
+    protected function callAction($action, array $parameters)
+    {
+        if ($action instanceof Closure) {
+            return call_user_func_array($action, $parameters);
+        }
+
+        list ($controller, $method) = explode('@', $action);
+
+        if (! class_exists($controller)) {
+            throw new LogicException("Controller [$controller] not found.");
+        }
+
+        // Create the Controller instance and check its method.
+        else if (! method_exists($instance = new $controller(), $method)) {
+            throw new LogicException("Controller [$controller] has no method [$method].");
+        }
+
+        return $instance->callAction($method, $parameters);
     }
 
     protected function compileRoute($route)
