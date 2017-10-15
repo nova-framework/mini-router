@@ -123,12 +123,12 @@ class ClassicRouter
     {
         $optionals = 0;
 
-        // Process for optional the parameters.
+        // Process for the optional parameters.
         $pattern = str_replace(
             array_keys(static::$optional), array_values(static::$optional), $route, $optionals
         );
 
-        // Process for standard the parameters.
+        // Process for the standard parameters.
         $pattern = strtr($pattern, static::$patterns);
 
         if ($optionals > 0) {
