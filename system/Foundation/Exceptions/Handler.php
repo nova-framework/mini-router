@@ -137,7 +137,9 @@ class Handler
         if ($e instanceof HttpException) {
             $code = $e->getStatusCode();
 
-            $view = View::make('Layouts/Default')->nest('content', 'Errors/' .$code)->shares('title', 'Error ' .$code);
+            $view = View::make('Layouts/Default')
+                ->shares('title', 'Error ' .$code)
+                ->nest('content', 'Errors/' .$code, array('exception' => $e));
 
             echo $view->render();
 
@@ -152,7 +154,9 @@ class Handler
             );
         }
 
-        $view = View::make('Layouts/Default')->nest('content', 'Default', compact('content'))->shares('title', 'Whoops!');
+        $view = View::make('Layouts/Default')
+            ->shares('title', 'Whoops!')
+            ->nest('content', 'Default', compact('content'));
 
         echo $view->render();
     }
