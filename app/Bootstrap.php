@@ -1,10 +1,11 @@
 <?php
 
 use System\Config\Config;
-use System\Foundation\Exceptions\Handler as ExceptionHandler;
 use System\Foundation\AliasLoader;
 use System\Routing\Router;
 use System\View\View;
+
+use App\Exceptions\Handler as ExceptionHandler;
 
 
 //--------------------------------------------------------------------------
