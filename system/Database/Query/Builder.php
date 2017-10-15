@@ -8,12 +8,12 @@ use System\Database\Connection;
 class Builder
 {
     /**
-     * @var  \System\Database\Connection
+     * @var \System\Database\Connection
      */
     protected $connection; // The Connection instance.
 
     /**
-     * @var  string
+     * @var string
      */
     protected $table; // The table which the query is targeting.
 
