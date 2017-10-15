@@ -146,12 +146,9 @@ class ClassicRouter
     {
         $instance = static::getInstance();
 
-        if (array_key_exists(strtoupper($method), $instance->routes)) {
-            array_unshift($parameters, array($method));
+        //
+        array_unshift($parameters, array($method));
 
-            $method = 'match';
-        }
-
-        return call_user_func_array(array($instance, $method), $parameters);
+        return call_user_func_array(array($instance, 'match'), $parameters);
     }
 }
