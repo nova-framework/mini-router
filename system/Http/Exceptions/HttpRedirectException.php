@@ -9,6 +9,7 @@ class HttpRedirectException extends HttpException
 {
     protected $url;
 
+
     public function __construct($url, $statusCode, $message = null, Exception $previous = null, $code = 0)
     {
         $this->url = $url;
