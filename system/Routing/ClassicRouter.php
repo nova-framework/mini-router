@@ -74,11 +74,9 @@ class ClassicRouter
         $route = '/' .trim($route, '/');
 
         foreach ($methods as $method) {
-            if (! array_key_exists($method, $this->routes)) {
-                continue;
+            if (array_key_exists($method, $this->routes)) {
+                $this->routes[$method][$route] = $action;
             }
-
-            $this->routes[$method][$route] = $action;
         }
     }
 
@@ -94,29 +92,26 @@ class ClassicRouter
         foreach ($routes as $route => $action) {
             $pattern = $this->compileRoute($route);
 
-            if (preg_match($pattern, $path, $matches) === 1) {
-                $parameters = array_slice($matches, 1);
-
-                return $this->callAction($action, $parameters);
+            if (preg_match($pattern, $path, $matches) !== 1) {
+                continue;
             }
+
+            $parameters = array_slice($matches, 1);
+
+            if ($callback instanceof Closure) {
+                return call_user_func_array($callback, $parameters);
+            }
+
+            list ($controller, $method) = explode('@', $callback);
+
+            if (! method_exists($instance = new $controller(), $method)) {
+                throw new LogicException("Controller [$controller] has no method [$method].");
+            }
+
+            return $instance->callAction($method, $parameters);
         }
 
         throw new HttpException(404, 'Page not found.');
-    }
-
-    protected function callAction($callback, $parameters)
-    {
-        if ($callback instanceof Closure) {
-            return call_user_func_array($callback, $parameters);
-        }
-
-        list ($controller, $method) = explode('@', $callback);
-
-        if (! method_exists($instance = new $controller(), $method)) {
-            throw new LogicException("Controller [$controller] has no method [$method].");
-        }
-
-        return $instance->callAction($method, $parameters);
     }
 
     protected function compileRoute($route)
