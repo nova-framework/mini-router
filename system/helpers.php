@@ -43,11 +43,7 @@ function redirect_to($url, $fullPath = false, $code = 301, $message = null)
  */
 function redirect_back($code = 301, $message = null)
 {
-    if (! isset($_SERVER['HTTP_REFERER'])) {
-        return;
-    }
-
-    $url = $_SERVER['HTTP_REFERER'];
+    $url = ! empty($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : site_url();
 
     throw new HttpRedirectException($url, $code, $message);
 }
