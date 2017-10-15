@@ -18,7 +18,7 @@ class Builder
     protected $table; // The table which the query is targeting.
 
     /**
-     * The query conditions.
+     * The query constraints.
      */
     protected $distinct = false;
 
@@ -106,7 +106,7 @@ class Builder
     {
         $columns = implode(', ', array_map(array($this, 'wrap'), $this->columns ?: $columns));
 
-        $this->query = 'SELECT ' .($this->distinct ? 'DISTINCT ' : '') .$columns .' FROM {' .$this->table .'}' .$this->conditions();
+        $this->query = 'SELECT ' .($this->distinct ? 'DISTINCT ' : '') .$columns .' FROM {' .$this->table .'}' .$this->constraints();
 
         return $this->connection->select($this->query, $this->bindings);
     }
@@ -148,7 +148,7 @@ class Builder
             $this->bindings[] = $value;
         }
 
-        $this->query = 'UPDATE {' .$this->table .'} SET ' .implode(', ', $items) .$this->conditions();
+        $this->query = 'UPDATE {' .$this->table .'} SET ' .implode(', ', $items) .$this->constraints();
 
         return $this->connection->update($this->query, $this->bindings);
     }
@@ -160,7 +160,7 @@ class Builder
      */
     public function delete()
     {
-        $this->query = 'DELETE FROM {' .$this->table .'}' .$this->conditions();
+        $this->query = 'DELETE FROM {' .$this->table .'}' .$this->constraints();
 
         return $this->connection->delete($this->query, $this->bindings);
     }
@@ -246,11 +246,11 @@ class Builder
     }
 
     /**
-     * Compute the SQL and parameters for conditions.
+     * Compute the SQL and parameters for constraints.
      *
      * @return string
      */
-    protected function conditions()
+    protected function constraints()
     {
         $query = '';
 

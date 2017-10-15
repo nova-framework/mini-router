@@ -18,7 +18,7 @@ class BasicBuilder
     protected $table;  // The table which the query is targeting.
 
     /**
-     * The query conditions.
+     * The query constraints.
      */
     protected $wheres   = array();
     protected $bindings = array();
@@ -77,7 +77,7 @@ class BasicBuilder
             $this->bindings[] = $value;
         }
 
-        $this->query = 'UPDATE {' .$this->table .'} SET ' .implode(', ', $items) .$this->conditions();
+        $this->query = 'UPDATE {' .$this->table .'} SET ' .implode(', ', $items) .$this->constraints();
 
         return $this->connection->update($this->query, $this->bindings);
     }
@@ -89,7 +89,7 @@ class BasicBuilder
      */
     public function delete()
     {
-        $this->query = 'DELETE FROM {' .$this->table .'}' .$this->conditions();
+        $this->query = 'DELETE FROM {' .$this->table .'}' .$this->constraints();
 
         return $this->connection->delete($this->query, $this->bindings);
     }
@@ -127,11 +127,11 @@ class BasicBuilder
     }
 
     /**
-     * Build the SQL string and parameters for conditions.
+     * Build the SQL string and parameters for constraints.
      *
      * @return string
      */
-    protected function conditions()
+    protected function constraints()
     {
         $query = '';
 
