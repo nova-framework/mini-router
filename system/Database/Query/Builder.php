@@ -496,9 +496,12 @@ class Builder
      */
     protected function compileJoinConstraint(array $clause)
     {
-        $second = $clause['where'] ? '?' : $this->wrap($clause['second']);
+        extract($where);
 
-        return strtoupper($clause['boolean']) .' ' .$this->wrap($clause['first']) .' ' .$clause['operator'] .' ' .$second;
+        //
+        $second = $where ? '?' : $this->wrap($second);
+
+        return strtoupper($boolean) .' ' .$this->wrap($first) .' ' .$operator .' ' .$second;
     }
 
     /**
