@@ -1,10 +1,24 @@
 <?php
 
 use System\Config\Config;
+use System\Http\Exceptions\HttpException;
 
 
 /**
+ * Abort the Application with an HttpException.
+ *
+ * @param int  code
+ * @param string  $message
+ * @return string
+ */
+function abort($code = 404, $message = null)
+{
+    throw new HttpException($code, $message);
+}
+
+/**
  * Site URL helper
+ *
  * @param string $path
  * @return string
  */

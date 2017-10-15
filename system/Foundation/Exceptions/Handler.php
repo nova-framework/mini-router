@@ -4,6 +4,7 @@ namespace System\Foundation\Exceptions;
 
 use System\Config\Config;
 use System\Foundation\Exceptions\FatalThrowableError;
+use System\Http\Exceptions\HttpException;
 use System\View\View;
 
 use ErrorException;
@@ -84,7 +85,9 @@ class Handler
             $e = new FatalThrowableError($e);
         }
 
-        $this->report($e);
+        if (! $e instanceof HttpException) {
+            $this->report($e);
+        }
 
         $this->render($e);
     }
@@ -131,6 +134,16 @@ class Handler
      */
     protected function render($e)
     {
+        if ($e instanceof HttpException) {
+            $code = $e->getStatusCode();
+
+            $view = View::make('Layouts/Default')->nest('content', 'Errors/' .$code)->shares('title', 'Error ' .$code);
+
+            echo $view->render();
+
+            return;
+        }
+
         if (! $this->debug) {
             $content = '<h2 class="text-center"><strong>An application error occurred.</strong></h2>';
         } else {

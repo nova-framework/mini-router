@@ -135,4 +135,9 @@ class Sample extends BaseController
         return $this->createView(compact('content'), 'Index')
             ->shares('title', 'Database API & QueryBuilder');
     }
+
+    public function error()
+    {
+        abort(404);
+    }
 }
