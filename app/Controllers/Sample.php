@@ -88,6 +88,8 @@ class Sample extends BaseController
         $content .= '<pre>' .var_export($users, true) .'</pre><br>';
 
         //
+        DB::table('users')->where('username', 'testuser')->delete();
+
         $query = DB::table('users');
 
         $userId = $query->insertGetId(array(

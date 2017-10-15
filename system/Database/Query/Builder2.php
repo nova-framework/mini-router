@@ -175,6 +175,7 @@ class Builder2
 
         $not = ($operator !== '=') ? 'NOT ' : '';
 
+         // Null value given?
         if (is_null($value)) {
             return $column .' IS ' .$not .'NULL';
         }

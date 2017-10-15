@@ -3,6 +3,8 @@
 namespace System\Database\Query;
 
 use System\Database\Connection;
+use System\Database\Query\Expression;
+use System\Database\Query\JoinClause;
 
 use Closure;
 use Exception;
@@ -28,6 +30,7 @@ class Builder
     protected $distinct = false;
 
     protected $bindings = array();
+    protected $joins    = array();
     protected $wheres   = array();
     protected $orders   = array();
 
@@ -89,6 +92,47 @@ class Builder
     }
 
     /**
+     * Add a "JOIN" clause to the query.
+     *
+     * @param  string  $table
+     * @param  string  $first
+     * @param  string  $operator
+     * @param  string  $two
+     * @param  string  $type
+     * @param  bool  $where
+     * @return static
+     */
+    public function join($table, $one, $operator = null, $two = null, $type = 'inner', $where = false)
+    {
+        if ($one instanceof Closure) {
+            $this->joins[] = new JoinClause($this, $type, $table);
+
+            call_user_func($one, end($this->joins));
+        } else {
+            $join = new JoinClause($this, $type, $table);
+
+            $this->joins[] = $join->on($one, $operator, $two, 'and', $where);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add a "JOIN WHERE" clause to the query.
+     *
+     * @param  string  $table
+     * @param  string  $first
+     * @param  string  $operator
+     * @param  string  $two
+     * @param  string  $type
+     * @return static
+     */
+    public function joinWhere($table, $one, $operator, $two, $type = 'inner')
+    {
+        return $this->join($table, $one, $operator, $two, $type, true);
+    }
+
+    /**
      * Get a single record by ID.
      *
      * @param int $id
@@ -141,12 +185,18 @@ class Builder
         foreach ($data as $field => $value) {
             $fields[] = $this->wrap($field);
 
-            $items[] = '?';
+            if ($value instanceof Expression) {
+                $value = $value->getValue();
+            } else {
+                $this->bindings[] = $value;
 
-            $this->bindings[] = $value;
+                $value = '?';
+            }
+
+            $values[] = $value;
         }
 
-        $this->query = 'INSERT INTO {' .$this->table .'} (' .implode(', ', $fields) .') VALUES (' .implode(', ', $items) .')';
+        $this->query = 'INSERT INTO {' .$this->table .'} (' .implode(', ', $fields) .') VALUES (' .implode(', ', $values) .')';
 
         return $this->connection->insert($this->query, $this->bindings);
     }
@@ -173,12 +223,18 @@ class Builder
     public function update(array $data)
     {
         foreach ($data as $field => $value) {
-            $items[] = $this->wrap($field) .' = ?';
+            if ($value instanceof Expression) {
+                $value = $value->getValue();
+            } else {
+                $this->bindings[] = $value;
 
-            $this->bindings[] = $value;
+                $value = '?';
+            }
+
+            $sql[] = $this->wrap($field) .' = ' .$value;
         }
 
-        $this->query = 'UPDATE {' .$this->table .'} SET ' .implode(', ', $items) .$this->constraints();
+        $this->query = 'UPDATE {' .$this->table .'} SET ' .implode(', ', $sql) .$this->constraints();
 
         return $this->connection->update($this->query, $this->bindings);
     }
@@ -387,17 +443,37 @@ class Builder
      */
     protected function constraints()
     {
-        $query = $this->compileWheres();
+        $query = '';
 
-        // Orders
-        $items = array();
+        // Joins
+        $sql = array();
 
-        foreach ($this->orders as $order) {
-            $items[] = $this->wrap($order['column']) .' ' .$order['direction'];
+        foreach ($this->joins as $join) {
+            $clauses = array();
+
+            foreach ($join->clauses as $clause) {
+                $clauses[] = $this->compileJoinConstraint($clause);
+            }
+
+            $clauses = preg_replace('/AND |OR /', '', implode(' ', $clauses), 1);
+
+            $sql[] = strtoupper($join->type) .' JOIN ' .$this->wrap($join->table) .' ON ' .$clauses;
         }
 
-        if (! empty($items)) {
-            $query .= ' ORDER BY ' .implode(', ', $items);
+        $query .= implode(' ', $sql);
+
+        // Wheres
+        $query .= $this->compileWheres();
+
+        // Orders
+        $sql = array();
+
+        foreach ($this->orders as $order) {
+            $sql[] = $this->wrap($order['column']) .' ' .$order['direction'];
+        }
+
+        if (! empty($sql)) {
+            $query .= ' ORDER BY ' .implode(', ', $sql);
         }
 
         // Limits
@@ -413,20 +489,33 @@ class Builder
     }
 
     /**
+     * Create a join clause constraint segment.
+     *
+     * @param  array   $clause
+     * @return string
+     */
+    protected function compileJoinConstraint(array $clause)
+    {
+        $second = $clause['where'] ? '?' : $this->wrap($clause['second']);
+
+        return strtoupper($clause['boolean']) .' ' .$this->wrap($clause['first']) .' ' .$clause['operator'] .' ' .$second;
+    }
+
+    /**
      * Compile the "WHERE" portions of the query.
      *
      * @return string
      */
     protected function compileWheres()
     {
-        $items = array();
+        $sql = array();
 
         foreach ($this->wheres as $where) {
-            $items[] = strtoupper($where['boolean']) .' ' .$this->compileWhere($where);
+            $sql[] = strtoupper($where['boolean']) .' ' .$this->compileWhere($where);
         }
 
-        if (! empty($items)) {
-            return ' WHERE ' .preg_replace('/AND |OR /', '', implode(' ', $items), 1);
+        if (! empty($sql)) {
+            return ' WHERE ' .preg_replace('/AND |OR /', '', implode(' ', $sql), 1);
         }
     }
 
@@ -459,6 +548,7 @@ class Builder
 
         $not = ($operator !== '=') ? 'NOT ' : '';
 
+        // Null value given?
         if (is_null($value)) {
             return $column .' IS ' .$not .'NULL';
         }
@@ -472,9 +562,19 @@ class Builder
             return $column .' ' .$not .'IN (' .implode(', ', $values) .')';
         }
 
-        $this->bindings[] = $value;
+        // The value is an Expression instance?
+        else if ($value instanceof Expression) {
+            $value = $value->getValue();
+        }
 
-        return $column .' ' .$operator .' ?';
+        // Default.
+        else {
+            $this->bindings[] = $value;
+
+            $value = '?';
+        }
+
+        return $column .' ' .$operator .' ' .$value;
     }
 
     /**
@@ -491,6 +591,19 @@ class Builder
         $select = $this->distinct ? 'SELECT DISTINCT' : 'SELECT';
 
         return  $select .' ' .$this->columnize($this->columns) .' FROM {' .$this->table .'}' .$this->constraints();
+    }
+
+    /**
+     * Add a binding to the query.
+     *
+     * @param  mixed  $value
+     * @return static
+     */
+    public function addBinding($value)
+    {
+        $this->bindings[] = $value;
+
+        return $this;
     }
 
     /**

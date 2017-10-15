@@ -61,6 +61,6 @@ class Handler extends BaseHandler
             return;
         }
 
-        parent::render();
+        parent::render($e);
     }
 }
