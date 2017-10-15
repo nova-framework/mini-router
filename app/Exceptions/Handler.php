@@ -57,11 +57,10 @@ class Handler extends BaseHandler
                 ->nest('content', 'Errors/' .$code, array('exception' => $e));
 
             echo $view->render();
+
+            return;
         }
 
-        // Default handling.
-        else {
-            parent::render();
-        }
+        parent::render();
     }
 }
