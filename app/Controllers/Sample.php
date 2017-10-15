@@ -143,6 +143,6 @@ class Sample extends BaseController
 
     public function test()
     {
-        redirect(site_url('database'));
+        redirect_to('database');
     }
 }

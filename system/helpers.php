@@ -25,8 +25,12 @@ function abort($code = 404, $message = null)
  * @param string  $message
  * @return string
  */
-function redirect($url, $code = 301, $message = null)
+function redirect_to($url, $fullPath = false, $code = 301, $message = null)
 {
+    if (! $fullPath) {
+        $url = site_url($url);
+    }
+
     throw new RedirectHttpException($url, $code, $message);
 }
 
