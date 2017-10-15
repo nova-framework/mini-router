@@ -80,11 +80,11 @@ class Router
 
             }, ARRAY_FILTER_USE_KEY);
 
-            if ($callback instanceof Closure) {
-                return call_user_func_array($callback, $parameters);
+            if ($action instanceof Closure) {
+                return call_user_func_array($action, $parameters);
             }
 
-            list ($controller, $method) = explode('@', $callback);
+            list ($controller, $method) = explode('@', $action);
 
             if (! method_exists($instance = new $controller(), $method)) {
                 throw new LogicException("Controller [$controller] has no method [$method].");
@@ -148,9 +148,12 @@ class Router
     {
         $instance = static::getInstance();
 
-        //
-        array_unshift($parameters, array($method));
+        if (array_key_exists(strtoupper($method), $instance->routes)) {
+            array_unshift($parameters, array($method));
 
-        return call_user_func_array(array($instance, 'match'), $parameters);
+            $method = 'match';
+        }
+
+        return call_user_func_array(array($instance, $method), $parameters);
     }
 }
