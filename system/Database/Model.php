@@ -111,6 +111,16 @@ class Model
     }
 
     /**
+     * Get a new Query for the Model's table.
+     *
+     * @return \System\Database\Query\Builder
+     */
+    public function newQuery()
+    {
+        return $this->getConnection()->table($this->table);
+    }
+
+    /**
      * Get the Table for the Model.
      *
      * @return string
@@ -160,16 +170,6 @@ class Model
     public function getConnectionName()
     {
         return $this->connection;
-    }
-
-    /**
-     * Get a new Query for the Model's table.
-     *
-     * @return \System\Database\Query\Builder
-     */
-    public function newQuery()
-    {
-        return $this->getConnection()->table($this->table);
     }
 
     /**
