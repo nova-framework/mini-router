@@ -45,7 +45,7 @@ class Model
             return;
         }
 
-        // Guessing the table name, like: 'App\Models\PostComments' -> 'post_comments'
+        // Guessing the table like: 'App\Models\PostComments' -> 'post_comments'
 
         $this->table = strtolower(preg_replace('~(?<=\\w)([A-Z])~', '_$1',
             basename(str_replace('\\', '/', static::class))
