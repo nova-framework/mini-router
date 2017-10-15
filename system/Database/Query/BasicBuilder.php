@@ -139,16 +139,49 @@ class BasicBuilder
         $items = array();
 
         foreach ($this->wheres as $where) {
-            $items[] = strtoupper($where['boolean']) .' ' .$this->wrap($where['column']) .' ' .$where['operator'] .' ?';
-
-            $this->bindings[] = $where['value'];
+            $items[] = $this->compileWhere($where);
         }
 
-        if (! empty($wheres)) {
+        if (! empty($items)) {
             $querty .= ' WHERE ' .preg_replace('/AND |OR /', '', implode(' ', $items), 1);
         }
 
         return $query;
+    }
+
+    /**
+     * Compile a WHERE condition.
+     *
+     * @param  array  $where
+     * @return string
+     */
+    protected function compileWhere(array $where)
+    {
+        extract($where);
+
+        //
+        $column = strtoupper($boolean) .' ' .$this->wrap($column);
+
+        $not = ($operator !== '=') ? 'NOT ' : '';
+
+        // No value given?
+        if (is_null($value)) {
+            return $column .' IS ' .$not .'NULL';
+        }
+
+        // Multiple values given?
+        else if (is_array($value)) {
+            $this->bindings = array_merge($this->bindings, $value);
+
+            $items = array_fill(0, count($value), '?');
+
+            return $column .' ' .$not .'IN (' .implode(', ', $items) .')';
+        }
+
+        // Standard WHERE.
+        $this->bindings[] = $value;
+
+        return $column .' ' .$operator .' ?';
     }
 
     /**

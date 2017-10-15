@@ -369,6 +369,7 @@ class ExtendedBuilder
             return $column .' ' .$not .'IN (' .implode(', ', $items) .')';
         }
 
+        // Standard WHERE.
         $this->bindings[] = $value;
 
         return $column .' ' .$operator .' ?';
