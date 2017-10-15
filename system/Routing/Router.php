@@ -24,18 +24,18 @@ class Router
      */
     protected $routes = array(
         'GET'     => array(),
-        'HEAD'    => array(),
         'POST'    => array(),
         'PUT'     => array(),
-        'PATCH'   => array(),
         'DELETE'  => array(),
+        'PATCH'   => array(),
+        'HEAD'    => array(),
         'OPTIONS' => array(),
     );
 
 
     protected function any($route, $action)
     {
-        $methods = array('GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE');
+        $methods = array('GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD');
 
         return $this->match($methods, $route, $action);
     }
@@ -71,22 +71,27 @@ class Router
         foreach ($routes as $route => $action) {
             list ($pattern, $variables) = $this->compileRoute($route);
 
+            //$pattern = $this->compileRoute($route); <--- For the unnamed parameters.
+
             if (preg_match($pattern, $path, $matches) !== 1) {
                 continue;
             }
 
             $parameters = array_filter($matches, function ($key) use ($variables)
             {
-                return in_array($key, $variables);
+                return in_array($key, $variables) && ! empty($key);
 
             }, ARRAY_FILTER_USE_KEY);
+
+            // $parameters = array_slice($matches, 1); <--- For the unnamed parameters.
 
             return $this->callAction($action, $parameters);
         }
 
+        //
         // No route found for the current HTTP request.
 
-        return View::make('Errors/404')->render();
+        return View::make('Layouts/Default')->nest('content', 'Errors/404')->render();
     }
 
     protected function callAction($callback, $parameters)
@@ -110,7 +115,7 @@ class Router
 
         $variables = array();
 
-        $result = preg_replace_callback('#/\{(.*?)(?:\:(.+?))?(\?)?\}#', function ($matches) use ($route, &$optionals, &$variables)
+        $pattern = preg_replace_callback('#/\{(.*?)(?:\:(.+?))?(\?)?\}#', function ($matches) use ($route, &$optionals, &$variables)
         {
             @list($text, $name, $condition, $optional) = $matches;
 
@@ -121,7 +126,7 @@ class Router
             $variables[] = $name;
 
             $regexp = sprintf('/(?P<%s>%s)', $name, ! empty($condition)
-                ? str_replace(array('num', 'all'), array('\d+', '.*'), $condition)
+                ? str_replace(array('num', 'any', 'all'), array('[0-9]+', '[^/]+', '.*'), $condition)
                 : '[^/]+');
 
             if ($optional) {
@@ -136,9 +141,40 @@ class Router
 
         }, $route);
 
-        $pattern = '#^' .$result .str_repeat(')?', $optionals) .'$#s';
+        if ($optionals > 0) {
+            $pattern .= str_repeat(')?', $optionals);
+        }
 
-        return array($pattern, $variables);
+        return array('#^' .$pattern .'$#s', $variables);
+    }
+
+    protected function compileRouteWithUnnamedParameters($route)
+    {
+        // The standard parameter patterns.
+        static $patterns = array(
+            '(:num)' => '([0-9]+)',
+            '(:any)' => '([^/]+)',
+            '(:all)' => '(.*)',
+        );
+
+        // The optional parameter patterns.
+        static $optional = array(
+            '/(:num?)' => '(?:/([0-9]+)',
+            '/(:any?)' => '(?:/([^/]+)',
+            '/(:all?)' => '(?:/(.*)',
+        );
+
+        // Replace the patterns for optional parameters.
+        $result = str_replace(array_keys($optional), array_values($optional), $route, $optionals);
+
+        // Replace the patterns for standard parameters.
+        $pattern = strtr($result, $patterns);
+
+        if ($optionals > 0) {
+            $pattern .= str_repeat(')?', $optionals);
+        }
+
+        return '#^' .$pattern .'$#s';
     }
 
     public static function getInstance()

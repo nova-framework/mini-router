@@ -8,14 +8,14 @@ use System\Database\Connection;
 class Builder
 {
     /**
-     * @var  \System\Database\Connection  The Connection instance.
+     * @var  \System\Database\Connection
      */
-    protected $connection;
+    protected $connection; // The Connection instance.
 
     /**
-     * @var  string  The table which the query is targeting.
+     * @var  string
      */
-    protected $table;
+    protected $table; // The table which the query is targeting.
 
     /**
      * The query conditions.
