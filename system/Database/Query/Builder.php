@@ -496,7 +496,7 @@ class Builder
      */
     protected function compileJoinConstraint(array $clause)
     {
-        extract($where);
+        extract($clause);
 
         //
         $second = $where ? '?' : $this->wrap($second);
