@@ -135,7 +135,7 @@ class BasicBuilder
     {
         $query = '';
 
-        // Wheres
+        // Wheres.
         $items = array();
 
         foreach ($this->wheres as $where) {
