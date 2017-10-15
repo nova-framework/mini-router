@@ -65,6 +65,18 @@ class Model
     }
 
     /**
+     * Find many Records by their primary key.
+     *
+     * @param  mixed  $id
+     * @param  array  $columns
+     * @return Model
+     */
+    public function findMany(array $ids, $columns = array('*'))
+    {
+        return $this->newQuery()->where($this->getKeyName(), $ids)->get($columns);
+    }
+
+    /**
      * Get all of the Records from the database.
      *
      * @param  array  $columns

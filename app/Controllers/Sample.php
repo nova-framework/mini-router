@@ -151,6 +151,14 @@ class Sample extends BaseController
 
         $content .= '<pre>' .var_export($users, true) .'</pre><br>';
 
+        //
+        $users = $this->users->findMany(
+            array(2, 4, 5), array('id', 'username', 'realname', 'email')
+        );
+
+        $content .= '<pre>' .var_export($users, true) .'</pre><br>';
+
+        //
         $users = $this->users->select('id', 'username', 'realname', 'email')
             ->where('username', '!=', 'admin')
             ->orderBy('realname', 'desc')
