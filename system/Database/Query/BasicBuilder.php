@@ -143,7 +143,7 @@ class BasicBuilder
         }
 
         if (! empty($items)) {
-            $querty .= ' WHERE ' .preg_replace('/AND |OR /', '', implode(' ', $items), 1);
+            $query .= ' WHERE ' .preg_replace('/AND |OR /', '', implode(' ', $items), 1);
         }
 
         return $query;
