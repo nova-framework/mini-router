@@ -8,7 +8,7 @@ use System\Database\Manager as DB;
 class Model
 {
     /**
-     * The Database Connection name.
+     * The Connection name.
      *
      * @var string
      */
@@ -19,7 +19,7 @@ class Model
      *
      * @var string
      */
-    protected $table = null;
+    protected $table;
 
     /**
      * The primary key for the Model.
@@ -41,11 +41,15 @@ class Model
             $this->connection = $connection;
         }
 
-        if (is_null($this->table)) {
-            $this->table = strtolower(preg_replace('~(?<=\\w)([A-Z])~', '_$1',
-                basename(str_replace('\\', '/', static::class))
-            ));
+        if (isset($this->table)) {
+            return;
         }
+
+        // Guessing the table name, like: 'App\Models\PostComments' -> 'post_comments'
+
+        $this->table = strtolower(preg_replace('~(?<=\\w)([A-Z])~', '_$1',
+            basename(str_replace('\\', '/', static::class))
+        ));
     }
 
     /**
@@ -83,7 +87,7 @@ class Model
     }
 
     /**
-     * Update the Model in the database.
+     * Update the Record in the database.
      *
      * @param  mixed  $id
      * @param  array  $attributes
@@ -165,7 +169,7 @@ class Model
      */
     public function newQuery()
     {
-        return DB::table($this->table);
+        return $this->getConnection()->table($this->table);
     }
 
     /**
