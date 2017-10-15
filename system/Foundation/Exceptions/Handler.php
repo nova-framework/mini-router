@@ -83,8 +83,6 @@ class Handler
     public function handleException($e)
     {
         if ($e instanceof HttpRedirectException) {
-            header("Referer: nowhere");
-
             header('Location: ' .$e->getUrl(), true, $e->getStatusCode());
 
             return;
