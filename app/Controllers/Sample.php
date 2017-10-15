@@ -3,12 +3,20 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
+use App\Models\Users;
 
 use DB;
 
 
 class Sample extends BaseController
 {
+    protected $users;
+
+
+    public function __construct()
+    {
+        $this->users = new Users();
+    }
 
     public function index()
     {
@@ -130,6 +138,18 @@ class Sample extends BaseController
 
         $content .= '<pre>' .var_export($query->lastQuery(), true) .'</pre>';
         $content .= '<pre>' .var_export($result, true) .'</pre>';
+
+        $content .= '<br><h3>Models</h3>';
+
+        //
+        $user = $this->users->find(1);
+
+        $content .= '<pre>' .var_export($user, true) .'</pre><br>';
+
+        //
+        $users = $this->users->all();
+
+        $content .= '<pre>' .var_export($users, true) .'</pre><br>';
 
 
         return $this->createView(compact('content'), 'Index')
