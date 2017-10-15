@@ -133,17 +133,22 @@ class BasicBuilder
      */
     protected function conditions()
     {
-        $wheres = array();
+        $query = '';
+
+        // Wheres
+        $items = array();
 
         foreach ($this->wheres as $where) {
-            $wheres[] = strtoupper($where['boolean']) .' ' .$this->wrap($where['column']) .' ' .$where['operator'] .' ?';
+            $items[] = strtoupper($where['boolean']) .' ' .$this->wrap($where['column']) .' ' .$where['operator'] .' ?';
 
             $this->bindings[] = $where['value'];
         }
 
         if (! empty($wheres)) {
-            return ' WHERE ' .preg_replace('/AND |OR /', '', implode(' ', $wheres), 1);
+            $querty .= ' WHERE ' .preg_replace('/AND |OR /', '', implode(' ', $items), 1);
         }
+
+        return $query;
     }
 
     /**
