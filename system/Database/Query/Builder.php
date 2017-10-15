@@ -511,7 +511,11 @@ class Builder
             $clauses = array();
 
             foreach ($join->clauses as $clause) {
-                $clauses[] = $this->compileJoinConstraint($clause);
+                $first = $this->wrap($clause['first']) ;
+
+                $second = ($clause['where'] == true) ? '?' : $this->wrap($clause['second']);
+
+                $clauses[] = strtoupper($clause['boolean']) .' ' .$first .' ' .$clause['operator'] .' ' .$second;
             }
 
             $clauses = preg_replace('/AND |OR /', '', implode(' ', $clauses), 1);
@@ -547,22 +551,6 @@ class Builder
         }
 
         return $query;
-    }
-
-    /**
-     * Create a join clause constraint segment.
-     *
-     * @param  array   $clause
-     * @return string
-     */
-    protected function compileJoinConstraint(array $clause)
-    {
-        extract($clause);
-
-        //
-        $second = $where ? '?' : $this->wrap($second);
-
-        return strtoupper($boolean) .' ' .$this->wrap($first) .' ' .$operator .' ' .$second;
     }
 
     /**
