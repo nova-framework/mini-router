@@ -2,6 +2,7 @@
 
 namespace System\Routing;
 
+use System\Http\Exceptions\HttpException;
 use System\View\View;
 
 use Closure;
@@ -91,7 +92,7 @@ class Router
         //
         // No route found for the current HTTP request.
 
-        return View::make('Layouts/Default')->nest('content', 'Errors/404')->render();
+        throw new HttpException(404, 'Page not found.');
     }
 
     protected function callAction($callback, $parameters)
