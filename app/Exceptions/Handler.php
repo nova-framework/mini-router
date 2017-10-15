@@ -4,7 +4,7 @@ namespace App\Exceptions;
 
 use System\Foundation\Exceptions\Handler as BaseHandler;
 use System\Http\Exceptions\HttpException;
-use System\Http\Exceptions\RedirectHttpException;
+use System\Http\Exceptions\HttpRedirectException;
 use System\View\View;
 
 use Exception;
@@ -49,11 +49,13 @@ class Handler extends BaseHandler
      */
     public function render(Exception $e)
     {
-        if ($e instanceof RedirectHttpException) {
+        // Http Redirects.
+        if ($e instanceof HttpRedirectException) {
             header('Location: ' .$e->getUrl(), true, $e->getStatusCode());
+        }
 
-            return;
-        } else if ($e instanceof HttpException) {
+        // Http Errors.
+        else if ($e instanceof HttpException) {
             $code = $e->getStatusCode();
 
             $view = View::make('Layouts/Default')
@@ -61,10 +63,11 @@ class Handler extends BaseHandler
                 ->nest('content', 'Errors/' .$code, array('exception' => $e));
 
             echo $view->render();
-
-            return;
         }
 
-        return parent::render();
+        // Default handling.
+        else {
+            parent::render();
+        }
     }
 }

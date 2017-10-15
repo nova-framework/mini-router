@@ -2,7 +2,7 @@
 
 use System\Config\Config;
 use System\Http\Exceptions\HttpException;
-use System\Http\Exceptions\RedirectHttpException;
+use System\Http\Exceptions\HttpRedirectException;
 
 
 /**
@@ -18,7 +18,7 @@ function abort($code = 404, $message = null)
 }
 
 /**
- * Abort the Application with an RedirectHttpException.
+ * Abort the Application with an HttpRedirectException.
  *
  * @param string  $url
  * @param int  code
@@ -31,7 +31,7 @@ function redirect_to($url, $fullPath = false, $code = 301, $message = null)
         $url = site_url($url);
     }
 
-    throw new RedirectHttpException($url, $code, $message);
+    throw new HttpRedirectException($url, $code, $message);
 }
 
 /**

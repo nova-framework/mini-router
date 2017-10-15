@@ -5,7 +5,7 @@ namespace System\Http\Exceptions;
 use System\Http\Exceptions\HttpException;
 
 
-class RedirectHttpException extends HttpException
+class HttpRedirectException extends HttpException
 {
     protected $url;
 
