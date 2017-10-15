@@ -387,10 +387,7 @@ class Builder
      */
     protected function constraints()
     {
-        $query = '';
-
-        // Wheres.
-        $query .= $this->compileWheres();
+        $query = $this->compileWheres();
 
         // Orders
         $items = array();
