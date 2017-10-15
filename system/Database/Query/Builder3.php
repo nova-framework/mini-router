@@ -314,18 +314,14 @@ class Builder3
 
         $not = ($operator !== '=') ? 'NOT ' : '';
 
-         // Null value given?
-        if (is_null($value)) {
-            return $column .' IS ' .$not .'NULL';
-        }
-
-        // Multiple values given?
-        else if (is_array($value)) {
+        if (is_array($value)) {
             $this->bindings = array_merge($this->bindings, $value);
 
             $values = array_fill(0, count($value), '?');
 
             return $column .' ' .$not .'IN (' .implode(', ', $values) .')';
+        } else if (is_null($value)) {
+            return $column .' IS ' .$not .'NULL';
         }
 
         $this->bindings[] = $value;

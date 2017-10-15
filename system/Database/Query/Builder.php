@@ -92,47 +92,6 @@ class Builder
     }
 
     /**
-     * Add a "JOIN" clause to the query.
-     *
-     * @param  string  $table
-     * @param  string  $first
-     * @param  string  $operator
-     * @param  string  $two
-     * @param  string  $type
-     * @param  bool  $where
-     * @return static
-     */
-    public function join($table, $one, $operator = null, $two = null, $type = 'inner', $where = false)
-    {
-        if ($one instanceof Closure) {
-            $this->joins[] = new JoinClause($this, $type, $table);
-
-            call_user_func($one, end($this->joins));
-        } else {
-            $join = new JoinClause($this, $type, $table);
-
-            $this->joins[] = $join->on($one, $operator, $two, 'and', $where);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Add a "JOIN WHERE" clause to the query.
-     *
-     * @param  string  $table
-     * @param  string  $first
-     * @param  string  $operator
-     * @param  string  $two
-     * @param  string  $type
-     * @return static
-     */
-    public function joinWhere($table, $one, $operator, $two, $type = 'inner')
-    {
-        return $this->join($table, $one, $operator, $two, $type, true);
-    }
-
-    /**
      * Get a single record by ID.
      *
      * @param int $id
@@ -252,53 +211,72 @@ class Builder
     }
 
     /**
-     * Determine if any rows exist for the current query.
+     * Add a "JOIN" clause to the query.
      *
-     * @return bool
+     * @param  string  $table
+     * @param  string  $first
+     * @param  string  $operator
+     * @param  string  $two
+     * @param  string  $type
+     * @param  bool  $where
+     * @return static
      */
-    public function exists()
+    public function join($table, $one, $operator = null, $two = null, $type = 'inner', $where = false)
     {
-        return $this->count() > 0;
+        if ($one instanceof Closure) {
+            $this->joins[] = new JoinClause($this, $type, $table);
+
+            call_user_func($one, end($this->joins));
+        } else {
+            $join = new JoinClause($this, $type, $table);
+
+            $this->joins[] = $join->on($one, $operator, $two, 'and', $where);
+        }
+
+        return $this;
     }
 
     /**
-     * Retrieve the "COUNT" result of the query.
+     * Add a "JOIN WHERE" clause to the query.
      *
-     * @param  string  $column
-     * @return int
+     * @param  string  $table
+     * @param  string  $first
+     * @param  string  $operator
+     * @param  string  $two
+     * @param  string  $type
+     * @return static
      */
-    public function count($column = '*')
+    public function joinWhere($table, $one, $operator, $two, $type = 'inner')
     {
-        return (int) $this->aggregate('count', array($column));
+        return $this->join($table, $one, $operator, $two, $type, true);
     }
 
     /**
-     * Execute an aggregate function on the database.
+     * Add a "LEFT JOIN" to the query.
      *
-     * @param  string  $function
-     * @param  array   $columns
-     * @return mixed
+     * @param  string  $table
+     * @param  string  $first
+     * @param  string  $operator
+     * @param  string  $second
+     * @return static
      */
-    public function aggregate($function, $columns = array('*'))
+    public function leftJoin($table, $first, $operator = null, $second = null)
     {
-        $column = $this->columnize($columns);
+        return $this->join($table, $first, $operator, $second, 'left');
+    }
 
-        if ($this->distinct && ($column !== '*')) {
-            $column = 'DISTINCT ' .$column;
-        }
-
-        $this->query = 'SELECT ' .$function .'(' .$column .') AS aggregate FROM {' .$this->table .'}' .$this->constraints();
-
-        $result = $this->connection->selectOne($this->query, $this->bindings);
-
-        // Reset the bindings.
-        $this->bindings = array();
-
-        if (! is_null($result)) {
-            $result = (array) $result;
-
-            return $result['aggregate'];
-        }
+    /**
+     * Add a "LEFT JOIN WHERE" clause to the query.
+     *
+     * @param  string  $table
+     * @param  string  $first
+     * @param  string  $operator
+     * @param  string  $two
+     * @return static
+     */
+    public function leftJoinWhere($table, $one, $operator, $two)
+    {
+        return $this->joinWhere($table, $one, $operator, $two, 'left');
     }
 
     /**
@@ -393,6 +371,87 @@ class Builder
     }
 
     /**
+     * Add a raw "WHERE" condition to the query.
+     *
+     * @param  string  $sql
+     * @param  array   $bindings
+     * @param  string  $boolean
+     * @return static
+     */
+    public function whereRaw($sql, $bindings = array(), $boolean = 'and')
+    {
+        $type = 'Raw';
+
+        $this->wheres[] = compact('type', 'sql', 'boolean');
+
+        $this->bindings = array_merge($this->bindings, $bindings);
+
+        return $this;
+    }
+
+    /**
+     * Add a raw "OR WHERE" condition to the query.
+     *
+     * @param  string  $where
+     * @param  array   $bindings
+     * @return \static
+     */
+    public function orWhereRaw($where, $bindings = array())
+    {
+        return $this->whereRaw($where, $bindings, 'or');
+    }
+
+    /**
+     * Determine if any rows exist for the current query.
+     *
+     * @return bool
+     */
+    public function exists()
+    {
+        return $this->count() > 0;
+    }
+
+    /**
+     * Retrieve the "COUNT" result of the query.
+     *
+     * @param  string  $column
+     * @return int
+     */
+    public function count($column = '*')
+    {
+        return (int) $this->aggregate('count', array($column));
+    }
+
+    /**
+     * Execute an aggregate function on the database.
+     *
+     * @param  string  $function
+     * @param  array   $columns
+     * @return mixed
+     */
+    public function aggregate($function, $columns = array('*'))
+    {
+        $column = $this->columnize($columns);
+
+        if ($this->distinct && ($column !== '*')) {
+            $column = 'DISTINCT ' .$column;
+        }
+
+        $this->query = 'SELECT ' .$function .'(' .$column .') AS aggregate FROM {' .$this->table .'}' .$this->constraints();
+
+        $result = $this->connection->selectOne($this->query, $this->bindings);
+
+        // Reset the bindings.
+        $this->bindings = array();
+
+        if (! is_null($result)) {
+            $result = (array) $result;
+
+            return $result['aggregate'];
+        }
+    }
+
+    /**
      * Set the "OFFSET" value of the query.
      *
      * @param  int  $value
@@ -463,7 +522,9 @@ class Builder
         $query .= implode(' ', $sql);
 
         // Wheres
-        $query .= $this->compileWheres();
+        if (! empty($wheres = $this->compileWheres())) {
+            $query .= ' WHERE ' .$wheres;
+        }
 
         // Orders
         $sql = array();
@@ -518,7 +579,7 @@ class Builder
         }
 
         if (! empty($sql)) {
-            return ' WHERE ' .preg_replace('/AND |OR /', '', implode(' ', $sql), 1);
+            return preg_replace('/AND |OR /', '', implode(' ', $sql), 1);
         }
     }
 
@@ -540,38 +601,30 @@ class Builder
 
             $this->bindings = array_merge($this->bindings, $query->bindings);
 
-            return '(' .substr($sql, 6) .')';
+            return '(' .$sql .')';
         } else if ($type === 'Sub') {
             $sql = $query->compileSelect();
 
             $this->bindings = array_merge($this->bindings, $query->bindings);
 
             return $column .' ' .$operator .' (' .$sql .')';
+        } else if ($type === 'Raw') {
+            return $sql;
         }
 
         $not = ($operator !== '=') ? 'NOT ' : '';
 
-        // Null value given?
-        if (is_null($value)) {
-            return $column .' IS ' .$not .'NULL';
-        }
-
-        // Multiple values given?
-        else if (is_array($value)) {
+        if (is_array($value)) {
             $this->bindings = array_merge($this->bindings, $value);
 
             $values = array_fill(0, count($value), '?');
 
             return $column .' ' .$not .'IN (' .implode(', ', $values) .')';
-        }
-
-        // The value is an Expression instance?
-        else if ($value instanceof Expression) {
+        } else if (is_null($value)) {
+            return $column .' IS ' .$not .'NULL';
+        } else if ($value instanceof Expression) {
             $value = $value->getValue();
-        }
-
-        // Default.
-        else {
+        } else {
             $this->bindings[] = $value;
 
             $value = '?';
