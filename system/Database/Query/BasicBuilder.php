@@ -58,18 +58,7 @@ class BasicBuilder
 
         $this->query = 'INSERT INTO {' .$this->table .'} (' .implode(', ', $fields) .') VALUES (' .implode(', ', $values) .')';
 
-        return $this->connection->insert($this->query, $this->bindings);
-    }
-
-    /**
-     * Insert a new Record and get the value of the primary key.
-     *
-     * @param array $data
-     * @return array
-     */
-    public function insertGetId(array $data)
-    {
-        $this->insert($data);
+        $this->connection->insert($this->query, $this->bindings);
 
         return $this->connection->lastInsertId();
     }
