@@ -9,7 +9,7 @@ use Closure;
 use LogicException;
 
 
-class Router
+class ClassicRouter
 {
     /**
      * The current Router instance.
@@ -31,6 +31,28 @@ class Router
         'PATCH'   => array(),
         'HEAD'    => array(),
         'OPTIONS' => array(),
+    );
+
+    /**
+     * The standard parameter patterns.
+     *
+     * @var array
+     */
+    protected static $patterns = array(
+        '(:num)' => '([0-9]+)',
+        '(:any)' => '([^/]+)',
+        '(:all)' => '(.*)',
+    );
+
+    /**
+     * The optional parameter patterns.
+     *
+     * @var array
+     */
+    protected static $optional = array(
+        '/(:num?)' => '(?:/([0-9]+)',
+        '/(:any?)' => '(?:/([^/]+)',
+        '/(:all?)' => '(?:/(.*)',
     );
 
 
@@ -70,19 +92,13 @@ class Router
         $routes = $this->routes[$method];
 
         foreach ($routes as $route => $action) {
-            list ($pattern, $variables) = $this->compileRoute($route);
+            $pattern = $this->compileRoute($route);
 
-            if (preg_match($pattern, $path, $matches) !== 1) {
-                continue;
+            if (preg_match($pattern, $path, $matches) === 1) {
+                $parameters = array_slice($matches, 1);
+
+                return $this->callAction($action, $parameters);
             }
-
-            $parameters = array_filter($matches, function ($key) use ($variables)
-            {
-                return in_array($key, $variables) && ! empty($key);
-
-            }, ARRAY_FILTER_USE_KEY);
-
-            return $this->callAction($action, $parameters);
         }
 
         throw new HttpException(404, 'Page not found.');
@@ -107,39 +123,19 @@ class Router
     {
         $optionals = 0;
 
-        $variables = array();
+        // Process for optional the parameters.
+        $pattern = str_replace(
+            array_keys(static::$optional), array_values(static::$optional), $route, $optionals
+        );
 
-        $pattern = preg_replace_callback('#/\{(.*?)(?:\:(.+?))?(\?)?\}#', function ($matches) use ($route, &$optionals, &$variables)
-        {
-            @list($text, $name, $condition, $optional) = $matches;
-
-            if (in_array($name, $variables)) {
-                throw new LogicException("Pattern [$route] cannot reference variable name [$name] more than once.");
-            }
-
-            $variables[] = $name;
-
-            $regexp = sprintf('/(?P<%s>%s)', $name, ! empty($condition)
-                ? str_replace(array('num', 'any', 'all'), array('[0-9]+', '[^/]+', '.*'), $condition)
-                : '[^/]+');
-
-            if ($optional) {
-                $regexp = "(?:$regexp";
-
-                $optionals++;
-            } else if ($optionals > 0) {
-                throw new LogicException("Pattern [$route] cannot reference variable [$name] after one or more optionals.");
-            }
-
-            return $regexp;
-
-        }, $route);
+        // Process for standard the parameters.
+        $pattern = strtr($pattern, static::$patterns);
 
         if ($optionals > 0) {
             $pattern .= str_repeat(')?', $optionals);
         }
 
-        return array('#^' .$pattern .'$#s', $variables);
+        return '#^' .$pattern .'$#s';
     }
 
     public static function getInstance()
