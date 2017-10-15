@@ -407,6 +407,10 @@ class ExtendedBuilder
     public function __call($method, $parameters)
     {
         if (in_array($method, array('min', 'max', 'sum', 'avg'))) {
+            if (empty($parameters)) {
+                throw new Exception("A column parameter is required.");
+            }
+
             $column = reset($parameters);
 
             return $this->aggregate($method, array($column));
