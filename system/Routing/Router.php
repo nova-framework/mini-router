@@ -164,11 +164,13 @@ class Router
             '/(:all?)' => '(?:/(.*)',
         );
 
+        $optionals = 0;
+
         // Replace the patterns for optional parameters.
-        $result = str_replace(array_keys($optional), array_values($optional), $route, $optionals);
+        $pattern = str_replace(array_keys($optional), array_values($optional), $route, $optionals);
 
         // Replace the patterns for standard parameters.
-        $pattern = strtr($result, $patterns);
+        $pattern = strtr($pattern, $patterns);
 
         if ($optionals > 0) {
             $pattern .= str_repeat(')?', $optionals);
