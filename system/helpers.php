@@ -23,7 +23,7 @@ function abort($code = 404, $message = null)
  * @param string  $url
  * @param int  code
  * @param string  $message
- * @return string
+ * @return void
  */
 function redirect_to($url, $fullPath = false, $code = 301, $message = null)
 {
@@ -32,6 +32,20 @@ function redirect_to($url, $fullPath = false, $code = 301, $message = null)
     }
 
     throw new HttpRedirectException($url, $code, $message);
+}
+
+/**
+ * Abort the Application with an HttpRedirectException.
+ *
+ * @param int  code
+ * @param string  $message
+ * @return void
+ */
+function redirect_back($code = 301, $message = null)
+{
+    if (! is_null($url = $_SERVER['HTTP_REFERER'])) {
+        throw new HttpRedirectException($url, $code, $message);
+    }
 }
 
 /**
