@@ -4,6 +4,9 @@ namespace System\Database\Query;
 
 use System\Database\Connection;
 
+use Closure;
+use Exception;
+
 
 class Builder
 {
@@ -20,13 +23,14 @@ class Builder
     /**
      * The query constraints.
      */
+    protected $columns;
+
     protected $distinct = false;
 
     protected $bindings = array();
     protected $wheres   = array();
     protected $orders   = array();
 
-    protected $columns;
     protected $offset;
     protected $limit;
     protected $query;
@@ -39,7 +43,7 @@ class Builder
      * @param string $table
      * @return void
      */
-    public function __construct(Connection $connection, $table)
+    public function __construct(Connection $connection, $table = null)
     {
         $this->connection = $connection;
 
@@ -67,6 +71,19 @@ class Builder
     public function distinct()
     {
         $this->distinct = true;
+
+        return $this;
+    }
+
+    /**
+     * Set the table which the query is targeting.
+     *
+     * @param  string  $table
+     * @return static
+     */
+    public function from($table)
+    {
+        $this->from = $table;
 
         return $this;
     }
@@ -104,9 +121,11 @@ class Builder
      */
     public function get($columns = array('*'))
     {
-        $columns = implode(', ', array_map(array($this, 'wrap'), $this->columns ?: $columns));
+        if (is_null($this->columns)) {
+            $this->columns = array('*');
+        }
 
-        $this->query = 'SELECT ' .($this->distinct ? 'DISTINCT ' : '') .$columns .' FROM {' .$this->table .'}' .$this->constraints();
+        $this->query = $this->compileSelect();
 
         return $this->connection->select($this->query, $this->bindings);
     }
@@ -122,14 +141,25 @@ class Builder
         foreach ($data as $field => $value) {
             $fields[] = $this->wrap($field);
 
-            $values[] = '?';
+            $items[] = '?';
 
             $this->bindings[] = $value;
         }
 
-        $this->query = 'INSERT INTO {' .$this->table .'} (' .implode(', ', $fields) .') VALUES (' .implode(', ', $values) .')';
+        $this->query = 'INSERT INTO {' .$this->table .'} (' .implode(', ', $fields) .') VALUES (' .implode(', ', $items) .')';
 
-        $this->connection->insert($this->query, $this->bindings);
+        return $this->connection->insert($this->query, $this->bindings);
+    }
+
+    /**
+     * Execute an INSERT query and return the last inserted ID.
+     *
+     * @param array $data
+     * @return array
+     */
+    public function insertGetId(array $data)
+    {
+        $this->insert($data);
 
         return $this->connection->lastInsertId();
     }
@@ -166,6 +196,56 @@ class Builder
     }
 
     /**
+     * Determine if any rows exist for the current query.
+     *
+     * @return bool
+     */
+    public function exists()
+    {
+        return $this->count() > 0;
+    }
+
+    /**
+     * Retrieve the "COUNT" result of the query.
+     *
+     * @param  string  $column
+     * @return int
+     */
+    public function count($column = '*')
+    {
+        return (int) $this->aggregate('count', array($column));
+    }
+
+    /**
+     * Execute an aggregate function on the database.
+     *
+     * @param  string  $function
+     * @param  array   $columns
+     * @return mixed
+     */
+    public function aggregate($function, $columns = array('*'))
+    {
+        $column = $this->columnize($columns);
+
+        if ($this->distinct && ($column !== '*')) {
+            $column = 'DISTINCT ' .$column;
+        }
+
+        $this->query = 'SELECT ' .$function .'(' .$column .') AS aggregate FROM {' .$this->table .'}' .$this->constraints();
+
+        $result = $this->connection->selectOne($this->query, $this->bindings);
+
+        // Reset the bindings.
+        $this->bindings = array();
+
+        if (! is_null($result)) {
+            $result = (array) $result;
+
+            return $result['aggregate'];
+        }
+    }
+
+    /**
      * Add a "WHERE" clause to the query.
      *
      * @param string $field
@@ -183,7 +263,13 @@ class Builder
             list ($value, $operator) = array($operator, '=');
         }
 
-        $this->wheres[] = compact('column', 'operator', 'value', 'boolean');
+        if ($value instanceof Closure) {
+            return $this->whereSub($column, $operator, $value, $boolean);
+        }
+
+        $type = 'Basic';
+
+        $this->wheres[] = compact('type', 'column', 'operator', 'value', 'boolean');
 
         return $this;
     }
@@ -199,6 +285,29 @@ class Builder
     public function orWhere($column, $operator = null, $value = null)
     {
         return $this->where($column, $operator, $value, 'or');
+    }
+
+    /**
+     * Add a full sub-select to the query.
+     *
+     * @param  string   $column
+     * @param  string   $operator
+     * @param  \Closure $callback
+     * @param  string   $boolean
+     * @return static
+     */
+    protected function whereSub($column, $operator, Closure $callback, $boolean)
+    {
+        $type = 'Sub';
+
+        // Create a new Builder instance.
+        $query = new static($this->connection);
+
+        call_user_func($callback, $query);
+
+        $this->wheres[] = compact('type', 'column', 'operator', 'query', 'boolean');
+
+        return $this;
     }
 
     /**
@@ -258,7 +367,7 @@ class Builder
         $items = array();
 
         foreach ($this->wheres as $where) {
-            $items[] = $this->compileWhere($where);
+            $items[] = strtoupper($where['boolean']) .' ' .$this->compileWhere($where);
         }
 
         if (! empty($items)) {
@@ -299,11 +408,18 @@ class Builder
         extract($where);
 
         //
-        $column = strtoupper($boolean) .' ' .$this->wrap($column);
+        $column = $this->wrap($column);
+
+        if ($type === 'Sub') {
+            $sql = $query->compileSelect();
+
+            $this->bindings = array_merge($this->bindings, $query->bindings);
+
+            return $column .' ' .$operator .' (' .$sql .')';
+        }
 
         $not = ($operator !== '=') ? 'NOT ' : '';
 
-        // No value given?
         if (is_null($value)) {
             return $column .' IS ' .$not .'NULL';
         }
@@ -312,15 +428,41 @@ class Builder
         else if (is_array($value)) {
             $this->bindings = array_merge($this->bindings, $value);
 
-            $items = array_fill(0, count($value), '?');
+            $values = array_fill(0, count($value), '?');
 
-            return $column .' ' .$not .'IN (' .implode(', ', $items) .')';
+            return $column .' ' .$not .'IN (' .implode(', ', $values) .')';
         }
 
-        // Standard WHERE.
         $this->bindings[] = $value;
 
         return $column .' ' .$operator .' ?';
+    }
+
+    /**
+     * Compile a select query into SQL.
+     *
+     * @return string
+     */
+    public function compileSelect()
+    {
+        if (is_null($this->columns)) {
+            $this->columns = array('*');
+        }
+
+        $select = $this->distinct ? 'SELECT DISTINCT' : 'SELECT';
+
+        return  $select .' ' .$this->columnize($this->columns) .' FROM {' .$this->table .'}' .$this->constraints();
+    }
+
+    /**
+     * Convert an array of column names into a delimited string.
+     *
+     * @param  array   $columns
+     * @return string
+     */
+    public function columnize(array $columns)
+    {
+        return implode(', ', array_map(array($this, 'wrap'), $columns));
     }
 
     /**
@@ -342,5 +484,24 @@ class Builder
     public function lastQuery()
     {
         return $this->query;
+    }
+
+    /**
+     * Magic call.
+     *
+     * @param  string  $method
+     * @param  array  $parameters
+     * @return mixed|null
+     * @throws \Exception
+     */
+    public function __call($method, $parameters)
+    {
+        if (in_array($method, array('min', 'max', 'sum', 'avg'))) {
+            $column = reset($parameters);
+
+            return $this->aggregate($method, array($column));
+        }
+
+        throw new Exception("Method [$method] not found.");
     }
 }

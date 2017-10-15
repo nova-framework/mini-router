@@ -2,8 +2,6 @@
 
 namespace System\Database;
 
-use System\Database\Query\Builder;
-
 use \PDO;
 
 
@@ -79,7 +77,7 @@ class Connection
      */
     public function table($table)
     {
-        return new Builder($this, $table);
+        return new Query\Builder($this, $table);
     }
 
     /**

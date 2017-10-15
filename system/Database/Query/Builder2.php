@@ -5,7 +5,7 @@ namespace System\Database\Query;
 use System\Database\Connection;
 
 
-class BasicBuilder
+class Builder2
 {
     /**
      * @var \System\Database\Connection
@@ -58,7 +58,18 @@ class BasicBuilder
 
         $this->query = 'INSERT INTO {' .$this->table .'} (' .implode(', ', $fields) .') VALUES (' .implode(', ', $values) .')';
 
-        $this->connection->insert($this->query, $this->bindings);
+        return $this->connection->insert($this->query, $this->bindings);
+    }
+
+    /**
+     * Execute an INSERT query and return the last inserted ID.
+     *
+     * @param array $data
+     * @return array
+     */
+    public function insertGetId(array $data)
+    {
+        $this->insert($data);
 
         return $this->connection->lastInsertId();
     }
@@ -139,7 +150,7 @@ class BasicBuilder
         $items = array();
 
         foreach ($this->wheres as $where) {
-            $items[] = $this->compileWhere($where);
+            $items[] = strtoupper($where['boolean']) . ' ' .$this->compileWhere($where);
         }
 
         if (! empty($items)) {
@@ -160,11 +171,10 @@ class BasicBuilder
         extract($where);
 
         //
-        $column = strtoupper($boolean) .' ' .$this->wrap($column);
+        $column = $this->wrap($column);
 
         $not = ($operator !== '=') ? 'NOT ' : '';
 
-        // No value given?
         if (is_null($value)) {
             return $column .' IS ' .$not .'NULL';
         }
@@ -173,12 +183,11 @@ class BasicBuilder
         else if (is_array($value)) {
             $this->bindings = array_merge($this->bindings, $value);
 
-            $items = array_fill(0, count($value), '?');
+            $values = array_fill(0, count($value), '?');
 
-            return $column .' ' .$not .'IN (' .implode(', ', $items) .')';
+            return $column .' ' .$not .'IN (' .implode(', ', $values) .')';
         }
 
-        // Standard WHERE.
         $this->bindings[] = $value;
 
         return $column .' ' .$operator .' ?';

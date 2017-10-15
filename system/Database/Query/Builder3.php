@@ -4,10 +4,8 @@ namespace System\Database\Query;
 
 use System\Database\Connection;
 
-use Exception;
 
-
-class ExtendedBuilder
+class Builder3
 {
     /**
      * @var \System\Database\Connection
@@ -22,14 +20,13 @@ class ExtendedBuilder
     /**
      * The query constraints.
      */
-    protected $columns;
-
     protected $distinct = false;
 
     protected $bindings = array();
     protected $wheres   = array();
     protected $orders   = array();
 
+    protected $columns;
     protected $offset;
     protected $limit;
     protected $query;
@@ -125,14 +122,25 @@ class ExtendedBuilder
         foreach ($data as $field => $value) {
             $fields[] = $this->wrap($field);
 
-            $items[] = '?';
+            $values[] = '?';
 
             $this->bindings[] = $value;
         }
 
-        $this->query = 'INSERT INTO {' .$this->table .'} (' .implode(', ', $fields) .') VALUES (' .implode(', ', $items) .')';
+        $this->query = 'INSERT INTO {' .$this->table .'} (' .implode(', ', $fields) .') VALUES (' .implode(', ', $values) .')';
 
-        $this->connection->insert($this->query, $this->bindings);
+        return $this->connection->insert($this->query, $this->bindings);
+    }
+
+    /**
+     * Execute an INSERT query and return the last inserted ID.
+     *
+     * @param array $data
+     * @return array
+     */
+    public function insertGetId(array $data)
+    {
+        $this->insert($data);
 
         return $this->connection->lastInsertId();
     }
@@ -166,56 +174,6 @@ class ExtendedBuilder
         $this->query = 'DELETE FROM {' .$this->table .'}' .$this->constraints();
 
         return $this->connection->delete($this->query, $this->bindings);
-    }
-
-    /**
-     * Determine if any rows exist for the current query.
-     *
-     * @return bool
-     */
-    public function exists()
-    {
-        return $this->count() > 0;
-    }
-
-    /**
-     * Retrieve the "COUNT" result of the query.
-     *
-     * @param  string  $column
-     * @return int
-     */
-    public function count($column = '*')
-    {
-        return (int) $this->aggregate('count', array($column));
-    }
-
-    /**
-     * Execute an aggregate function on the database.
-     *
-     * @param  string  $function
-     * @param  array   $columns
-     * @return mixed
-     */
-    public function aggregate($function, $columns = array('*'))
-    {
-        $column = implode(', ', array_map(array($this, 'wrap'), $columns));
-
-        if ($this->distinct && ($column !== '*')) {
-            $column = 'DISTINCT ' .$column;
-        }
-
-        $this->query = 'SELECT ' .$function .'(' .$column .') AS aggregate FROM {' .$this->table .'}' .$this->constraints();
-
-        $result = $this->connection->selectOne($this->query, $this->bindings);
-
-        // Reset the bindings.
-        $this->bindings = array();
-
-        if (! is_null($result)) {
-            $result = (array) $result;
-
-            return $result['aggregate'];
-        }
     }
 
     /**
@@ -311,7 +269,7 @@ class ExtendedBuilder
         $items = array();
 
         foreach ($this->wheres as $where) {
-            $items[] = $this->compileWhere($where);
+            $items[] =  strtoupper($where['boolean']). ' ' .$this->compileWhere($where);
         }
 
         if (! empty($items)) {
@@ -352,7 +310,7 @@ class ExtendedBuilder
         extract($where);
 
         //
-        $column = strtoupper($boolean) .' ' .$this->wrap($column);
+        $column = $this->wrap($column);
 
         $not = ($operator !== '=') ? 'NOT ' : '';
 
@@ -360,16 +318,15 @@ class ExtendedBuilder
             return $column .' IS ' .$not .'NULL';
         }
 
-        // Where with multiple values?
+        // Multiple values given?
         else if (is_array($value)) {
             $this->bindings = array_merge($this->bindings, $value);
 
-            $items = array_fill(0, count($value), '?');
+            $values = array_fill(0, count($value), '?');
 
-            return $column .' ' .$not .'IN (' .implode(', ', $items) .')';
+            return $column .' ' .$not .'IN (' .implode(', ', $values) .')';
         }
 
-        // Standard WHERE.
         $this->bindings[] = $value;
 
         return $column .' ' .$operator .' ?';
@@ -394,28 +351,5 @@ class ExtendedBuilder
     public function lastQuery()
     {
         return $this->query;
-    }
-
-    /**
-     * Magic call.
-     *
-     * @param  string  $method
-     * @param  array  $parameters
-     * @return mixed|null
-     * @throws \Exception
-     */
-    public function __call($method, $parameters)
-    {
-        if (in_array($method, array('min', 'max', 'sum', 'avg'))) {
-            if (empty($parameters)) {
-                throw new Exception("A column parameter is required.");
-            }
-
-            $column = reset($parameters);
-
-            return $this->aggregate($method, array($column));
-        }
-
-        throw new Exception("Method [$method] not found.");
     }
 }

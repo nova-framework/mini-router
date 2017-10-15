@@ -90,7 +90,7 @@ class Sample extends BaseController
         //
         $query = DB::table('users');
 
-        $userId = $query->insert(array(
+        $userId = $query->insertGetId(array(
             'username'  => 'testuser',
             'password'  => 'password',
             'realname'  => 'Test User',

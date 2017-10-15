@@ -9,7 +9,7 @@ use Closure;
 use LogicException;
 
 
-class ClassicRouter
+class Router2
 {
     /**
      * The current Router instance.
