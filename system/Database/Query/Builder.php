@@ -20,13 +20,16 @@ class Builder
     /**
      * The query conditions.
      */
-    protected $params = array();
+    protected $distinct = false;
 
-    protected $wheres = array();
-    protected $orders = array();
+    protected $bindings = array();
+    protected $wheres   = array();
+    protected $orders   = array();
 
+    protected $columns;
     protected $offset;
     protected $limit;
+    protected $query;
 
 
     /**
@@ -41,6 +44,31 @@ class Builder
         $this->connection = $connection;
 
         $this->table = $table;
+    }
+
+    /**
+     * Set the columns to be selected.
+     *
+     * @param  array  $columns
+     * @return static
+     */
+    public function select($columns = array('*'))
+    {
+        $this->columns = is_array($columns) ? $columns : func_get_args();
+
+        return $this;
+    }
+
+    /**
+     * Force the query to only return distinct results.
+     *
+     * @return static
+     */
+    public function distinct()
+    {
+        $this->distinct = true;
+
+        return $this;
     }
 
     /**
@@ -76,13 +104,11 @@ class Builder
      */
     public function get($columns = array('*'))
     {
-        foreach ($columns as $column) {
-            $sql[] = $this->wrap($column);
-        }
+        $columns = implode(', ', array_map(array($this, 'wrap'), $this->columns ?: $columns));
 
-        $query = 'SELECT ' .implode(', ', $sql) .' FROM {' .$this->table .'}' .$this->conditions();
+        $this->query = 'SELECT ' .($this->distinct ? 'DISTINCT ' : '') .$columns .' FROM {' .$this->table .'}' .$this->conditions();
 
-        return $this->connection->select($query, $this->params);
+        return $this->connection->select($this->query, $this->bindings);
     }
 
     /**
@@ -96,14 +122,14 @@ class Builder
         foreach ($data as $field => $value) {
             $fields[] = $this->wrap($field);
 
-            $values[] = $param = ':' .$field;
+            $values[] = '?';
 
-            $this->params[$param] = $value;
+            $this->bindings[] = $value;
         }
 
-        $query = 'INSERT INTO {' .$this->table .'} (' .implode(', ', $fields) .') VALUES (' .implode(', ', $values) .')';
+        $this->query = 'INSERT INTO {' .$this->table .'} (' .implode(', ', $fields) .') VALUES (' .implode(', ', $values) .')';
 
-        return $this->connection->insert($query, $this->params);
+        return $this->connection->insert($this->query, $this->bindings);
     }
 
     /**
@@ -128,16 +154,14 @@ class Builder
     public function update(array $data)
     {
         foreach ($data as $field => $value) {
-            $param = ':' .$field;
+            $items[] = $this->wrap($field) .' = ?';
 
-            $this->params[$param] = $value;
-
-            $sql[] = $this->wrap($field) .' = ' .$param;
+            $this->bindings[] = $value;
         }
 
-        $query = 'UPDATE {' .$this->table .'} SET ' .implode(', ', $sql) .$this->conditions();
+        $this->query = 'UPDATE {' .$this->table .'} SET ' .implode(', ', $items) .$this->conditions();
 
-        return $this->connection->update($query, $this->params);
+        return $this->connection->update($this->query, $this->bindings);
     }
 
     /**
@@ -147,9 +171,9 @@ class Builder
      */
     public function delete()
     {
-        $query = 'DELETE FROM {' .$this->table .'}' .$this->conditions();
+        $this->query = 'DELETE FROM {' .$this->table .'}' .$this->conditions();
 
-        return $this->connection->delete($query, $this->params);
+        return $this->connection->delete($this->query, $this->bindings);
     }
 
     /**
@@ -242,39 +266,25 @@ class Builder
         $query = '';
 
         // Wheres.
-        $sql = array();
+        $items = array();
 
         foreach ($this->wheres as $where) {
-            $column = strtoupper($where['boolean']) .' ' .$this->wrap($where['column']);
-
-            $operator = $where['operator'];
-
-            if (! isset($where['value'])) {
-                $sql[] = $column .' IS ' .(($operator !== '=') ? 'NOT ' : '') .'NULL';
-
-                continue;
-            }
-
-            $param = ':' .$where['column'];
-
-            $sql[] = $column .' ' .$operator .' ' .$param;
-
-            $this->params[$param] = $where['value'];
+            $items[] = $this->compileWhere($where);
         }
 
-        if (! empty($sql)) {
-            $query .= ' WHERE ' .preg_replace('/AND |OR /', '', implode(' ', $sql), 1);
+        if (! empty($items)) {
+            $query .= ' WHERE ' .preg_replace('/AND |OR /', '', implode(' ', $items), 1);
         }
 
         // Orders
-        $sql = array();
+        $items = array();
 
         foreach ($this->orders as $order) {
-            $sql[] = $this->wrap($order['column']) .' ' .$order['direction'];
+            $items[] = $this->wrap($order['column']) .' ' .$order['direction'];
         }
 
-        if (! empty($sql)) {
-            $query .= ' ORDER BY ' .implode(', ', $sql);
+        if (! empty($items)) {
+            $query .= ' ORDER BY ' .implode(', ', $items);
         }
 
         // Limits
@@ -290,6 +300,40 @@ class Builder
     }
 
     /**
+     * Compile a WHERE condition.
+     *
+     * @param  array  $where
+     * @return string
+     */
+    protected function compileWhere(array $where)
+    {
+        extract($where);
+
+        //
+        $column = strtoupper($boolean) .' ' .$this->wrap($column);
+
+        $not = ($operator !== '=') ? 'NOT ' : '';
+
+        // No value given?
+        if (is_null($value)) {
+            return $column .' IS ' .$not .'NULL';
+        }
+
+        // Multiple values given?
+        else if (is_array($value)) {
+            $this->bindings = array_merge($this->bindings, $value);
+
+            $items = array_fill(0, count($value), '?');
+
+            return $column .' ' .$not .'IN (' .implode(', ', $items) .')';
+        }
+
+        $this->bindings[] = $value;
+
+        return $column .' ' .$operator .' ?';
+    }
+
+    /**
      * Wrap a value in keyword identifiers.
      *
      * @param  string  $value
@@ -298,5 +342,15 @@ class Builder
     protected function wrap($value)
     {
         return $this->connection->wrap($value);
+    }
+
+    /**
+     * Get the last executed SQL query.
+     *
+     * @return string|null
+     */
+    public function lastQuery()
+    {
+        return $this->query;
     }
 }

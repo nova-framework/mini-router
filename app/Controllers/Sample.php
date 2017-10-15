@@ -33,6 +33,8 @@ class Sample extends BaseController
     {
         $content = '';
 
+        $content .= '<h3>Database API</h3>';
+
         //
         $query = 'SELECT {users.id} FROM {users} WHERE id = :id';
 
@@ -56,22 +58,31 @@ class Sample extends BaseController
 
         $content .= '<pre>' .var_export($user, true) .'</pre>';
 
-        //
-        $users = DB::select('SELECT id, username, realname, email FROM {users}');
-
-        $content .= '<pre>' .var_export($users, true) .'</pre>';
+        $content .= '<br><h3>QueryBuilder</h3>';
 
         //
-        $users = DB::table('users')
-            ->where('username', '!=', 'admin')
+        $query = DB::table('users');
+
+        $users = $query->select('id', 'username', 'email')->where('id', array(1, 3, 4))->get();
+
+        $content .= '<pre>' .var_export($query->lastQuery(), true) .'</pre>';
+        $content .= '<pre>' .var_export($users, true) .'</pre><br>';
+
+        //
+        $query = DB::table('users');
+
+        $users = $query->where('username', '!=', 'admin')
             ->limit(2)
             ->orderBy('realname', 'desc')
             ->get(array('id', 'username', 'realname', 'email'));
 
-        $content .= '<pre>' .var_export($users, true) .'</pre>';
+        $content .= '<pre>' .var_export($query->lastQuery(), true) .'</pre>';
+        $content .= '<pre>' .var_export($users, true) .'</pre><br>';
 
         //
-        $userId = DB::table('users')->insertGetId(array(
+        $query = DB::table('users');
+
+        $userId = $query->insertGetId(array(
             'username'  => 'testuser',
             'password'  => 'password',
             'realname'  => 'Test User',
@@ -79,15 +90,21 @@ class Sample extends BaseController
             'activated' => 0,
         ));
 
-        $content .= '<pre>' .var_export($userId, true) .'</pre>';
+        $content .= '<pre>' .var_export($query->lastQuery(), true) .'</pre>';
+        $content .= '<pre>' .var_export($userId, true) .'</pre><br>';
 
         //
-        $user = DB::table('users')->find($userId);
+        $query = DB::table('users');
 
-        $content .= '<pre>' .var_export($user, true) .'</pre>';
+        $user = $query->find($userId);
+
+        $content .= '<pre>' .var_export($query->lastQuery(), true) .'</pre>';
+        $content .= '<pre>' .var_export($user, true) .'</pre><br>';
 
         //
-        $result = DB::table('users')->where('id', $userId)->update(array(
+        $query = DB::table('users');
+
+        $result = $query->where('id', $userId)->update(array(
             'username'  => 'testuser2',
             'password'  => 'another password',
             'realname'  => 'Updated Test User',
@@ -95,16 +112,23 @@ class Sample extends BaseController
             'activated' => 1,
         ));
 
-        $content .= '<pre>' .var_export($result, true) .'</pre>';
+        $content .= '<pre>' .var_export($query->lastQuery(), true) .'</pre>';
+        $content .= '<pre>' .var_export($result, true) .'</pre><br>';
 
         //
-        $user = DB::table('users')->find($userId);
+        $query = DB::table('users');
 
-        $content .= '<pre>' .var_export($user, true) .'</pre>';
+        $user = $query->find($userId);
+
+        $content .= '<pre>' .var_export($query->lastQuery(), true) .'</pre>';
+        $content .= '<pre>' .var_export($user, true) .'</pre><br>';
 
         //
-        $result = DB::table('users')->where('id', $userId)->delete();
+        $query = DB::table('users');
 
+        $result = $query->where('id', $userId)->delete();
+
+        $content .= '<pre>' .var_export($query->lastQuery(), true) .'</pre>';
         $content .= '<pre>' .var_export($result, true) .'</pre>';
 
 
