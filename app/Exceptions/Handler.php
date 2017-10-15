@@ -54,7 +54,7 @@ class Handler extends BaseHandler
             header('Location: ' .$e->getUrl(), true, $e->getStatusCode());
         }
 
-        // Http Errors.
+        // Http Error Pages.
         else if ($e instanceof HttpException) {
             $code = $e->getStatusCode();
 
