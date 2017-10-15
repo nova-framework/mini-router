@@ -263,6 +263,10 @@ class Builder
             list ($value, $operator) = array($operator, '=');
         }
 
+        if ($column instanceof Closure) {
+            return $this->whereNested($column, $boolean);
+        }
+
         if ($value instanceof Closure) {
             return $this->whereSub($column, $operator, $value, $boolean);
         }
@@ -288,6 +292,28 @@ class Builder
     }
 
     /**
+     * Add a nested where statement to the query.
+     *
+     * @param  \Closure $callback
+     * @param  string   $boolean
+     * @return static
+     */
+    public function whereNested(Closure $callback, $boolean = 'and')
+    {
+        $query = new static($this->connection, $this->from);
+
+        call_user_func($callback, $query);
+
+        if (! empty($query->wheres)) {
+            $type = 'Nested';
+
+            $this->wheres[] = compact('type', 'query', 'boolean');
+        }
+
+        return $this;
+    }
+
+    /**
      * Add a full sub-select to the query.
      *
      * @param  string   $column
@@ -300,7 +326,7 @@ class Builder
     {
         $type = 'Sub';
 
-        // Create a new Builder instance.
+        //
         $query = new static($this->connection);
 
         call_user_func($callback, $query);
@@ -364,15 +390,7 @@ class Builder
         $query = '';
 
         // Wheres.
-        $items = array();
-
-        foreach ($this->wheres as $where) {
-            $items[] = strtoupper($where['boolean']) .' ' .$this->compileWhere($where);
-        }
-
-        if (! empty($items)) {
-            $query .= ' WHERE ' .preg_replace('/AND |OR /', '', implode(' ', $items), 1);
-        }
+        $query .= $this->compileWheres();
 
         // Orders
         $items = array();
@@ -398,6 +416,24 @@ class Builder
     }
 
     /**
+     * Compile the "WHERE" portions of the query.
+     *
+     * @return string
+     */
+    protected function compileWheres()
+    {
+        $items = array();
+
+        foreach ($this->wheres as $where) {
+            $items[] = strtoupper($where['boolean']) .' ' .$this->compileWhere($where);
+        }
+
+        if (! empty($items)) {
+            return ' WHERE ' .preg_replace('/AND |OR /', '', implode(' ', $items), 1);
+        }
+    }
+
+    /**
      * Compile a WHERE condition.
      *
      * @param  array  $where
@@ -410,7 +446,13 @@ class Builder
         //
         $column = $this->wrap($column);
 
-        if ($type === 'Sub') {
+        if ($type === 'Nested') {
+            $sql = $query->compileWheres();
+
+            $this->bindings = array_merge($this->bindings, $query->bindings);
+
+            return '(' .substr($sql, 6) .')';
+        } else if ($type === 'Sub') {
             $sql = $query->compileSelect();
 
             $this->bindings = array_merge($this->bindings, $query->bindings);
