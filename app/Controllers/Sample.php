@@ -151,6 +151,14 @@ class Sample extends BaseController
 
         $content .= '<pre>' .var_export($users, true) .'</pre><br>';
 
+        $users = $this->users->select('id', 'username', 'realname', 'email')
+            ->where('username', '!=', 'admin')
+            ->orderBy('realname', 'desc')
+            ->limit(2)
+            ->get();
+
+        $content .= '<pre>' .var_export($users, true) .'</pre><br>';
+
 
         return $this->createView(compact('content'), 'Index')
             ->shares('title', 'Database API & QueryBuilder');
