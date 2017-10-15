@@ -74,11 +74,11 @@ class Router
                 continue;
             }
 
-            $parameters = array_filter($matches, function ($key) use ($variables)
+            $parameters = array_filter($matches, function ($value, $key) use ($variables)
             {
-                return in_array($key, $variables) && ! empty($key);
+                return in_array($key, $variables) && ! empty($value);
 
-            }, ARRAY_FILTER_USE_KEY);
+            }, ARRAY_FILTER_USE_BOTH);
 
             if ($action instanceof Closure) {
                 return call_user_func_array($action, $parameters);
@@ -86,7 +86,12 @@ class Router
 
             list ($controller, $method) = explode('@', $action);
 
-            if (! method_exists($instance = new $controller(), $method)) {
+            if (! class_exists($controller)) {
+                throw new LogicException("Controller [$controller] not found.");
+            }
+
+            // Create the Controller instance and check its method.
+            else if (! method_exists($instance = new $controller(), $method)) {
                 throw new LogicException("Controller [$controller] has no method [$method].");
             }
 

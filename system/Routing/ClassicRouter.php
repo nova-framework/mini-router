@@ -96,7 +96,10 @@ class ClassicRouter
                 continue;
             }
 
-            $parameters = array_slice($matches, 1);
+            $parameters = array_filter(array_slice($matches, 1), function ($value)
+            {
+                return ! empty($value);
+            });
 
             if ($action instanceof Closure) {
                 return call_user_func_array($action, $parameters);
@@ -104,7 +107,12 @@ class ClassicRouter
 
             list ($controller, $method) = explode('@', $action);
 
-            if (! method_exists($instance = new $controller(), $method)) {
+            if (! class_exists($controller)) {
+                throw new LogicException("Controller [$controller] not found.");
+            }
+
+            // Create the Controller instance and check its method.
+            else if (! method_exists($instance = new $controller(), $method)) {
                 throw new LogicException("Controller [$controller] has no method [$method].");
             }
 
