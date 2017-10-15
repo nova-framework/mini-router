@@ -5,6 +5,7 @@ namespace System\Foundation\Exceptions;
 use System\Config\Config;
 use System\Foundation\Exceptions\FatalThrowableError;
 use System\Http\Exceptions\HttpException;
+use System\Http\Exceptions\HttpRedirectException;
 use System\View\View;
 
 use ErrorException;
@@ -81,6 +82,12 @@ class Handler
      */
     public function handleException($e)
     {
+        if ($e instanceof HttpRedirectException) {
+            header('Location: ' .$e->getUrl(), true, $e->getStatusCode());
+
+            return;
+        }
+
         if (! $e instanceof Exception) {
             $e = new FatalThrowableError($e);
         }
