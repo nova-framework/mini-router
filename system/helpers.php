@@ -2,6 +2,7 @@
 
 use System\Config\Config;
 use System\Http\Exceptions\HttpException;
+use System\Http\Exceptions\RedirectHttpException;
 
 
 /**
@@ -14,6 +15,19 @@ use System\Http\Exceptions\HttpException;
 function abort($code = 404, $message = null)
 {
     throw new HttpException($code, $message);
+}
+
+/**
+ * Abort the Application with an RedirectHttpException.
+ *
+ * @param string  $url
+ * @param int  code
+ * @param string  $message
+ * @return string
+ */
+function redirect($url, $code = 301, $message = null)
+{
+    throw new RedirectHttpException($url, $code, $message);
 }
 
 /**

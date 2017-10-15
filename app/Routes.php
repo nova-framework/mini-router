@@ -4,6 +4,7 @@
 Route::get('/',        'App\Controllers\Sample@index');
 Route::get('database', 'App\Controllers\Sample@database');
 Route::get('error',    'App\Controllers\Sample@error');
+Route::get('test',     'App\Controllers\Sample@test');
 
 
 Route::get('pages/{slug?}', 'App\Controllers\Sample@page');

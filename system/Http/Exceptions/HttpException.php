@@ -9,7 +9,6 @@ use RuntimeException;
 class HttpException extends \RuntimeException
 {
     private $statusCode;
-    private $headers;
 
     public function __construct($statusCode, $message = null, Exception $previous = null, $code = 0)
     {

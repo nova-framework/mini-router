@@ -140,4 +140,9 @@ class Sample extends BaseController
     {
         abort(404);
     }
+
+    public function test()
+    {
+        redirect(site_url('database'));
+    }
 }
