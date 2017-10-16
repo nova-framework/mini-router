@@ -118,9 +118,11 @@ class Handler
      */
     public function render(Exception $e)
     {
+        $type = $this->debug ? 'Debug' : 'Default';
+
         $view = View::make('Layouts/Default')
             ->shares('title', 'Whoops!')
-            ->nest('content', $this->debug ? 'Exceptions/Debug' : 'Exceptions/Default', array('exception' => $e));
+            ->nest('content', 'Exceptions/' .$type, array('exception' => $e));
 
         echo $view->render();
     }
