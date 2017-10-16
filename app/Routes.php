@@ -29,8 +29,8 @@ Route::get('test', function ()
 });
 
 // A route executing a closure and having parameter patterns.
-Route::get('language/{language}', array('uses' => function ($code)
+Route::get('language/{code}', array('uses' => function ($code)
 {
     echo htmlentities($code);
 
-}, 'where' => array('language' => '[a-z]{2}')));
+}, 'where' => array('code' => '[a-z]{2}')));
