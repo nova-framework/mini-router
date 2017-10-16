@@ -115,7 +115,7 @@ class Router2
         $result = str_replace($searches, $replaces, $route, $optionals);
 
         if ($optionals > 0) {
-            $regexp .= str_repeat(')?', $optionals);
+            $result .= str_repeat(')?', $optionals);
         }
 
         return '#^' .strtr($result, static::$patterns) .'$#s';
