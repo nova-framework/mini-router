@@ -186,10 +186,6 @@ class Builder3
      */
     public function where($column, $operator = null, $value = null, $boolean = 'and')
     {
-        if (is_callable($column)) {
-            return call_user_func($column, $this);
-        }
-
         if (func_num_args() == 2) {
             list ($value, $operator) = array($operator, '=');
         }

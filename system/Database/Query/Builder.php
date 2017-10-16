@@ -289,19 +289,13 @@ class Builder
      */
     public function where($column, $operator = null, $value = null, $boolean = 'and')
     {
-        if (is_callable($column)) {
-            return call_user_func($column, $this);
-        }
-
         if (func_num_args() == 2) {
             list ($value, $operator) = array($operator, '=');
         }
 
         if ($column instanceof Closure) {
             return $this->whereNested($column, $boolean);
-        }
-
-        if ($value instanceof Closure) {
+        } else if ($value instanceof Closure) {
             return $this->whereSub($column, $operator, $value, $boolean);
         }
 
@@ -585,17 +579,17 @@ class Builder
         $column = $this->wrap($column);
 
         if ($type === 'Nested') {
-            $sql = $query->compileWheres();
+            $sql = '(' .$query->compileWheres() .')';
 
             $this->bindings = array_merge($this->bindings, $query->bindings);
 
-            return '(' .$sql .')';
+            return $sql;
         } else if ($type === 'Sub') {
-            $sql = $query->compileSelect();
+            $sql = $column .' ' .$operator .' (' .$query->compileSelect() .')';
 
             $this->bindings = array_merge($this->bindings, $query->bindings);
 
-            return $column .' ' .$operator .' (' .$sql .')';
+            return $sql;
         } else if ($type === 'Raw') {
             return $sql;
         }
@@ -610,7 +604,10 @@ class Builder
             return $column .' ' .$not .'IN (' .implode(', ', $values) .')';
         } else if (is_null($value)) {
             return $column .' IS ' .$not .'NULL';
-        } else if ($value instanceof Expression) {
+        }
+
+        // The value is an Expression instance?
+        else if ($value instanceof Expression) {
             $value = $value->getValue();
         } else {
             $this->bindings[] = $value;
