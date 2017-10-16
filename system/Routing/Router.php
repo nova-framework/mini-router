@@ -109,7 +109,7 @@ class Router
 
         $variables = array();
 
-        $pattern = preg_replace_callback('#/\{(.*?)(\?)?\}#', function ($matches) use ($route, $patterns, &$optionals, &$variables)
+        $regexp = preg_replace_callback('#/\{(.*?)(\?)?\}#', function ($matches) use ($route, $patterns, &$optionals, &$variables)
         {
             @list(, $name, $optional) = $matches;
 
@@ -134,10 +134,10 @@ class Router
         }, $route);
 
         if ($optionals > 0) {
-            $pattern .= str_repeat(')?', $optionals);
+            $regexp .= str_repeat(')?', $optionals);
         }
 
-        return '#^' .$pattern .'$#s';
+        return '#^' .$regexp .'$#s';
     }
 
     protected function call($callback, array $parameters)

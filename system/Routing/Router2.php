@@ -115,14 +115,14 @@ class Router2
 
         $result = str_replace($searches, $replaces, $route, $optionals);
 
+        // Replace the standard parameter patterns.
+        $regexp = strtr($result, static::$patterns);
+
         if ($optionals > 0) {
-            $pattern .= str_repeat(')?', $optionals);
+            $regexp .= str_repeat(')?', $optionals);
         }
 
-        // Replace the standard parameter patterns.
-        $pattern = strtr($result, static::$patterns);
-
-        return '#^' .$pattern .'$#s';
+        return '#^' .$regexp .'$#s';
     }
 
     protected function call($callback, array $parameters)
