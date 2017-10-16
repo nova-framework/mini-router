@@ -109,13 +109,12 @@ class Router2
 
     protected function compileRoute($route)
     {
-        // Replace the optional parameter patterns.
         $searches = array_keys(static::$optional);
         $replaces = array_values(static::$optional);
 
         $result = str_replace($searches, $replaces, $route, $optionals);
 
-        // Replace the standard parameter patterns.
+        //
         $regexp = strtr($result, static::$patterns);
 
         if ($optionals > 0) {
