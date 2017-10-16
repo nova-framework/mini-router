@@ -79,12 +79,14 @@ class Router
         $routes = isset($this->routes[$method]) ? $this->routes[$method] : array();
 
         foreach ($routes as $route => $action) {
-            $pattern = $this->compileRoute(
-                $route, array_merge($this->patterns, isset($action['where']) ? $action['where'] : array())
-            );
+            $patterns = array_merge($this->patterns, isset($action['where']) ? $action['where'] : array());
+
+            $pattern = $this->compileRoute($route, $patterns);
 
             if (preg_match($pattern, $path, $matches) !== 1) {
                 continue;
+            } else if (! isset($action['uses'])) {
+                throw new LogicException("Matched route [$route] has no USES defined.");
             }
 
             $callback = $action['uses'];
@@ -123,10 +125,7 @@ class Router
                 $optionals++;
 
                 return sprintf('(?:/(?P<%s>%s)', $name, $pattern);
-            }
-
-            // A standard parameter.
-            else if ($optionals > 0) {
+            } else if ($optionals > 0) {
                 throw new LogicException("Pattern [$route] cannot reference variable [$name] after one or more optionals.");
             }
 
