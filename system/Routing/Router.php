@@ -65,7 +65,7 @@ class Router
         $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';
 
         // Get the routes registered for the current HTTP method.
-        $routes = $this->routes[$method];
+        $routes = isset($this->routes[$method]) $this->routes[$method] ? array();
 
         foreach ($routes as $route => $action) {
             list ($pattern, $variables) = $this->compileRoute($route);
