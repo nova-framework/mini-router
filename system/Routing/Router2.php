@@ -107,6 +107,24 @@ class Router2
         throw new HttpException(404, 'Page not found.');
     }
 
+    protected function compileRoute($route)
+    {
+        // Replace the optional parameter patterns.
+        $searches = array_keys(static::$optional);
+        $replaces = array_values(static::$optional);
+
+        $result = str_replace($searches, $replaces, $route, $optionals);
+
+        if ($optionals > 0) {
+            $pattern .= str_repeat(')?', $optionals);
+        }
+
+        // Replace the standard parameter patterns.
+        $pattern = strtr($result, static::$patterns);
+
+        return '#^' .$pattern .'$#s';
+    }
+
     protected function callAction($action, array $parameters)
     {
         if ($action instanceof Closure) {
@@ -125,24 +143,6 @@ class Router2
         }
 
         return $instance->callAction($method, $parameters);
-    }
-
-    protected function compileRoute($route)
-    {
-        // Replace the optional parameter patterns.
-        $searches = array_keys(static::$optional);
-        $replaces = array_values(static::$optional);
-
-        $result = str_replace($searches, $replaces, $route, $optionals);
-
-        if ($optionals > 0) {
-            $pattern .= str_repeat(')?', $optionals);
-        }
-
-        // Replace the standard parameter patterns.
-        $pattern = strtr($result, static::$patterns);
-
-        return '#^' .$pattern .'$#s';
     }
 
     public static function getInstance()
