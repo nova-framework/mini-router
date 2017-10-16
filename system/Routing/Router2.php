@@ -114,14 +114,11 @@ class Router2
 
         $result = str_replace($searches, $replaces, $route, $optionals);
 
-        //
-        $regexp = strtr($result, static::$patterns);
-
         if ($optionals > 0) {
             $regexp .= str_repeat(')?', $optionals);
         }
 
-        return '#^' .$regexp .'$#s';
+        return '#^' .strtr($result, static::$patterns) .'$#s';
     }
 
     protected function call($callback, array $parameters)
