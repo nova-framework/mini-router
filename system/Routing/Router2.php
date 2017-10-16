@@ -131,17 +131,18 @@ class Router2
     {
         $optionals = 0;
 
-        // Process for the optional parameters.
-        $pattern = str_replace(
-            array_keys(static::$optional), array_values(static::$optional), $route, $optionals
-        );
+        // Replace the optional parameter patterns.
+        $searches = array_keys(static::$optional);
+        $replaces = array_values(static::$optional);
 
-        // Process for the standard parameters.
-        $pattern = strtr($pattern, static::$patterns);
+        $result = str_replace($searches, $replaces, $route, $optionals);
 
         if ($optionals > 0) {
             $pattern .= str_repeat(')?', $optionals);
         }
+
+        // Replace the standard parameter patterns.
+        $pattern = strtr($result, static::$patterns);
 
         return '#^' .$pattern .'$#s';
     }
