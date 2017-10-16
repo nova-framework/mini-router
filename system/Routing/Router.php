@@ -112,7 +112,7 @@ class Router
                 return sprintf('(?:/(?P<%s>%s)', $name, $pattern);
             }
 
-            // A standard parameter found.
+            // A standard parameter was found.
             else if ($optionals > 0) {
                 throw new LogicException("Pattern [$route] cannot reference variable [$name] after one or more optionals.");
             }
