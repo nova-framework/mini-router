@@ -29,12 +29,16 @@ class Sample extends BaseController
 
     public function page($slug = null)
     {
-        return '</pre>URI: ' .var_export($slug, true) .'</pre>';
+        $content = htmlspecialchars($slug);
+
+        return $this->createView(compact('content'), 'Index')->shares('title', 'Page');
     }
 
     public function post($slug = null)
     {
-        return '</pre>URI: ' .var_export($slug, true) .'</pre>';
+        $content = htmlspecialchars($slug);
+
+        return $this->createView(compact('content'), 'Index')->shares('title', 'Post');
     }
 
     public function database()

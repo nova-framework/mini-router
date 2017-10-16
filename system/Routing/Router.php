@@ -102,9 +102,7 @@ class Router
 
             $variables[] = $name;
 
-            $pattern = ! empty($condition)
-                ? str_replace(array('num', 'any', 'all'), array('[0-9]+', '[^/]+', '.*'), $condition)
-                : '[^/]+';
+            $pattern = ! empty($condition) ? $condition : '[^/]+';
 
             if ($optional) {
                 $optionals++;
@@ -119,7 +117,7 @@ class Router
 
             return sprintf('/(?P<%s>%s)', $name, $pattern);
 
-        }, $route);
+        }, str_replace(array(':num', ':any', ':all'), array(':[0-9]+', ':[^/]+', ':.*'), $route));
 
         if ($optionals > 0) {
             $pattern .= str_repeat(')?', $optionals);
