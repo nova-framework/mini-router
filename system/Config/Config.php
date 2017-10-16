@@ -8,7 +8,7 @@ class Config
     /**
      * @var array
      */
-    protected static $settings = array();
+    protected static $options = array();
 
 
     /**
@@ -18,7 +18,7 @@ class Config
      */
     public static function has($key)
     {
-        return array_has(static::$settings, $key);
+        return array_has(static::$options, $key);
     }
 
     /**
@@ -28,7 +28,7 @@ class Config
      */
     public static function get($key, $default = null)
     {
-        return array_get(static::$settings, $key, $default);
+        return array_get(static::$options, $key, $default);
     }
 
     /**
@@ -38,6 +38,6 @@ class Config
      */
     public static function set($key, $value)
     {
-        array_set(static::$settings, $key, $value);
+        array_set(static::$options, $key, $value);
     }
 }
