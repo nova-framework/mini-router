@@ -140,13 +140,13 @@ class Router
         return '#^' .$pattern .'$#s';
     }
 
-    protected function call($action, array $parameters)
+    protected function call($callback, array $parameters)
     {
-        if ($action instanceof Closure) {
-            return call_user_func_array($action, $parameters);
+        if ($callback instanceof Closure) {
+            return call_user_func_array($callback, $parameters);
         }
 
-        list ($controller, $method) = explode('@', $action);
+        list ($controller, $method) = explode('@', $callback);
 
         if (! class_exists($controller)) {
             throw new LogicException("Controller [$controller] not found.");
