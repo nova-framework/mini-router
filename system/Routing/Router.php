@@ -33,6 +33,13 @@ class Router
         'OPTIONS' => array(),
     );
 
+    /**
+     * The global parameter patterns.
+     *
+     * @var array
+     */
+    protected $patterns = array();
+
 
     protected function any($route, $action)
     {
@@ -51,6 +58,10 @@ class Router
 
         $route = '/' .trim($route, '/');
 
+        if (! is_array($action)) {
+            $action = array('uses' => $action);
+        }
+
         foreach ($methods as $method) {
             if (array_key_exists($method, $this->routes)) {
                 $this->routes[$method][$route] = $action;
@@ -64,37 +75,41 @@ class Router
 
         $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';
 
-        // Get the routes registered for the current HTTP method.
+        // Get the routes by HTTP method.
         $routes = isset($this->routes[$method]) ? $this->routes[$method] : array();
 
         foreach ($routes as $route => $action) {
-            list ($pattern, $variables) = $this->compileRoute($route);
+            $pattern = $this->compileRoute(
+                $route, array_merge($this->patterns, isset($action['where']) ? $action['where'] : array())
+            );
 
             if (preg_match($pattern, $path, $matches) !== 1) {
                 continue;
             }
 
-            $parameters = array_filter($matches, function ($value, $key) use ($variables)
+            $callback = $action['uses'];
+
+            $parameters = array_filter($matches, function ($value, $key)
             {
-                return in_array($key, $variables) && ! empty($value);
+                return is_string($key) && ! empty($value);
 
             }, ARRAY_FILTER_USE_BOTH);
 
-            return $this->callAction($action, $parameters);
+            return $this->call($callback, $parameters);
         }
 
         throw new HttpException(404, 'Page not found.');
     }
 
-    protected function compileRoute($route)
+    protected function compileRoute($route, array $patterns)
     {
         $optionals = 0;
 
         $variables = array();
 
-        $pattern = preg_replace_callback('#/\{(.*?)(?:\:(.+?))?(\?)?\}#', function ($matches) use ($route, &$optionals, &$variables)
+        $pattern = preg_replace_callback('#/\{(.*?)(\?)?\}#', function ($matches) use ($route, $patterns, &$optionals, &$variables)
         {
-            @list($text, $name, $condition, $optional) = $matches;
+            @list(, $name, $optional) = $matches;
 
             if (in_array($name, $variables)) {
                 throw new LogicException("Pattern [$route] cannot reference variable name [$name] more than once.");
@@ -102,7 +117,7 @@ class Router
 
             $variables[] = $name;
 
-            $pattern = ! empty($condition) ? $condition : '[^/]+';
+            $pattern = isset($patterns[$name]) ? $patterns[$name] : '[^/]+';
 
             if ($optional) {
                 $optionals++;
@@ -110,23 +125,23 @@ class Router
                 return sprintf('(?:/(?P<%s>%s)', $name, $pattern);
             }
 
-            // A standard parameter was found.
+            // A standard parameter.
             else if ($optionals > 0) {
                 throw new LogicException("Pattern [$route] cannot reference variable [$name] after one or more optionals.");
             }
 
             return sprintf('/(?P<%s>%s)', $name, $pattern);
 
-        }, str_replace(array(':num}', ':any}', ':all}'), array(':[0-9]+}', ':[^/]+}', ':.*}'), $route));
+        }, $route);
 
         if ($optionals > 0) {
             $pattern .= str_repeat(')?', $optionals);
         }
 
-        return array('#^' .$pattern .'$#s', $variables);
+        return '#^' .$pattern .'$#s';
     }
 
-    protected function callAction($action, array $parameters)
+    protected function call($action, array $parameters)
     {
         if ($action instanceof Closure) {
             return call_user_func_array($action, $parameters);
@@ -144,6 +159,11 @@ class Router
         }
 
         return $instance->callAction($method, $parameters);
+    }
+
+    protected function pattern($key, $pattern)
+    {
+        $this->patterns[$key] = $pattern;
     }
 
     public static function getInstance()

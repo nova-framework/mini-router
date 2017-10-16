@@ -101,7 +101,7 @@ class Router2
                 return ! empty($value);
             });
 
-            return $this->callAction($action, $parameters);
+            return $this->call($action, $parameters);
         }
 
         throw new HttpException(404, 'Page not found.');
@@ -125,7 +125,7 @@ class Router2
         return '#^' .$pattern .'$#s';
     }
 
-    protected function callAction($action, array $parameters)
+    protected function call($action, array $parameters)
     {
         if ($action instanceof Closure) {
             return call_user_func_array($action, $parameters);
