@@ -517,7 +517,9 @@ class Builder
             $sql[] = strtoupper($join->type) .' JOIN ' .$this->wrap($join->table) .' ON ' .$clauses;
         }
 
-        $query .= implode(' ', $sql);
+        if (! empty($sql)) {
+            $query .= implode(' ', $sql);
+        }
 
         // Wheres
         if (! is_null($sql = $this->compileWheres())) {
