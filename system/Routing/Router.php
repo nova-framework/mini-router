@@ -117,7 +117,7 @@ class Router
 
             return sprintf('/(?P<%s>%s)', $name, $pattern);
 
-        }, str_replace(array(':num', ':any', ':all'), array(':[0-9]+', ':[^/]+', ':.*'), $route));
+        }, str_replace(array(':num}', ':any}', ':all}'), array(':[0-9]+}', ':[^/]+}', ':.*}'), $route));
 
         if ($optionals > 0) {
             $pattern .= str_repeat(')?', $optionals);
