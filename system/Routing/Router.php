@@ -120,21 +120,23 @@ class Router
                 throw new LogicException("Pattern [$route] cannot reference variable name [$name] more than once.");
             }
 
-            $variables[] = $name;
-
-            $regexp = sprintf('/(?P<%s>%s)', $name, ! empty($condition)
+            $regexp = ! empty($condition)
                 ? str_replace(array('num', 'any', 'all'), array('[0-9]+', '[^/]+', '.*'), $condition)
-                : '[^/]+');
+                : '[^/]+';
+
+            $pattern = sprintf('/(?P<%s>%s)', $name, $regexp);
 
             if ($optional) {
-                $regexp = "(?:$regexp";
+                $pattern = '(?:' .$pattern;
 
                 $optionals++;
             } else if ($optionals > 0) {
                 throw new LogicException("Pattern [$route] cannot reference variable [$name] after one or more optionals.");
             }
 
-            return $regexp;
+            $variables[] = $name;
+
+            return $pattern;
 
         }, $route);
 
