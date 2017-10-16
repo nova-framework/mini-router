@@ -520,7 +520,7 @@ class Builder
         $query .= implode(' ', $sql);
 
         // Wheres
-        if (! empty($wheres = $this->compileWheres())) {
+        if (! is_null($wheres = $this->compileWheres())) {
             $query .= ' WHERE ' .$wheres;
         }
 
