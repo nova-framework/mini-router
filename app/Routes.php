@@ -28,7 +28,7 @@ Route::get('test', function ()
     echo 'This is a test.';
 });
 
-// A route executing a closure and having parameter patterns.
+// A route executing a closure and having own parameter patterns.
 Route::get('language/{code}', array('uses' => function ($code)
 {
     echo htmlentities($code);
