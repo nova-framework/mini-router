@@ -79,25 +79,21 @@ class Router
         $routes = isset($this->routes[$method]) ? $this->routes[$method] : array();
 
         foreach ($routes as $route => $action) {
-            $patterns = array_merge(
-                $this->patterns, isset($action['where']) ? $action['where'] : array()
-            );
+            $patterns = array_merge($this->patterns, isset($action['where']) ? $action['where'] : array());
 
             $pattern = $this->compileRoute($route, $patterns);
 
             if (preg_match($pattern, $path, $matches) !== 1) {
                 continue;
-            } else if (! isset($action['uses'])) {
-                throw new LogicException("Matched route [$route] has no USES defined.");
             }
-
-            $callback = $action['uses'];
 
             $parameters = array_filter($matches, function ($value, $key)
             {
                 return is_string($key) && ! empty($value);
 
             }, ARRAY_FILTER_USE_BOTH);
+
+            $callback = isset($action['uses']) ? $action['uses'] : $this->findActionClosure($action);
 
             return $this->call($callback, $parameters);
         }
@@ -140,6 +136,15 @@ class Router
         }
 
         return '#^' .$regexp .'$#s';
+    }
+
+    protected function findActionClosure(array $action)
+    {
+        foreach ($action as $key => $value) {
+            if (is_numeric($key) && ($value instanceof Closure)) {
+                return $value;
+            }
+        }
     }
 
     protected function call($callback, array $parameters)
