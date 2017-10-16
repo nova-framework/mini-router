@@ -520,8 +520,8 @@ class Builder
         $query .= implode(' ', $sql);
 
         // Wheres
-        if (! is_null($wheres = $this->compileWheres())) {
-            $query .= ' WHERE ' .$wheres;
+        if (! is_null($sql = $this->compileWheres())) {
+            $query .= ' WHERE ' .$sql;
         }
 
         // Orders
