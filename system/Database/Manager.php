@@ -21,7 +21,7 @@ class Manager
 
 
     /**
-     * Get a Events Dispatcher instance.
+     * Get a Database Manager instance.
      *
      * @return \System\Database\Manager
      */
