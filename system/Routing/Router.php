@@ -2,7 +2,7 @@
 
 namespace System\Routing;
 
-use System\Http\Exceptions\HttpException;
+use System\Http\Exceptions\NotFoundHttpException;
 use System\View\View;
 
 use Closure;
@@ -98,7 +98,7 @@ class Router
             return $this->call($callback, $parameters);
         }
 
-        throw new HttpException(404, 'Page not found.');
+        throw new NotFoundHttpException('Page not found.');
     }
 
     protected function compileRoute($route, array $patterns)
