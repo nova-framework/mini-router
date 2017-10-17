@@ -11,13 +11,13 @@ class Request
     protected $method;
     protected $headers;
     protected $server;
-    protected $get;
+    protected $query;
     protected $post;
     protected $files;
     protected $cookies;
 
 
-    public function __construct($method, array $headers, array $server, array $get, array $post, array $files, array $cookies)
+    public function __construct($method, array $headers, array $server, array $query, array $post, array $files, array $cookies)
     {
         $this->method = strtoupper($method);
 
@@ -25,7 +25,7 @@ class Request
 
         //
         $this->server  = $server;
-        $this->get     = $get;
+        $this->query   = $query;
         $this->post    = $post;
         $this->files   = $files;
         $this->cookies = $cookies;
@@ -92,9 +92,25 @@ class Request
         return array_get($this->server, 'HTTP_REFERER');
     }
 
+    public function server($key = null)
+    {
+        if (is_null($key)) {
+            return $this->server;
+        }
+
+        return array_get($this->server, $key);
+    }
+
     public function input($key, $default = null)
     {
-        return array_get(array_merge($this->get, $this->post), $key, $default);
+        $input = ($this->method == 'GET') ? $this->query : $this->post;
+
+        return array_get($input, $key, $default);
+    }
+
+    public function query($key, $default = null)
+    {
+        return array_get($this->query, $key, $default);
     }
 
     public function file($key)
@@ -102,9 +118,19 @@ class Request
         return array_get($this->files, $key);
     }
 
+    public function hasFile($key)
+    {
+        return array_has($this->files, $key);
+    }
+
     public function cookie($key, $default = null)
     {
         return array_get($this->cookies, $key, $default);
+    }
+
+    public function hasCookie($key)
+    {
+        return array_has($this->cookies, $key);
     }
 
     public function get()
@@ -125,19 +151,5 @@ class Request
     public function cookies()
     {
         return $this->cookies;
-    }
-
-    public function server($key = null)
-    {
-        if (is_null($key)) {
-            return $this->server;
-        }
-
-        return array_get($this->server, $key);
-    }
-
-    public function hasFile($key)
-    {
-        return array_has($this->files, $key);
     }
 }
