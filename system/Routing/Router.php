@@ -98,7 +98,7 @@ class Router
             return $this->call($callback, $parameters);
         }
 
-        throw new NotFoundHttpException('Page not found.');
+        throw new NotFoundHttpException('Page not found');
     }
 
     protected function compileRoute($route, array $patterns)

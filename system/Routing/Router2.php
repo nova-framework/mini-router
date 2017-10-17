@@ -104,7 +104,7 @@ class Router2
             return $this->call($action, $parameters);
         }
 
-        throw new NotFoundHttpException('Page not found.');
+        throw new NotFoundHttpException('Page not found');
     }
 
     protected function compileRoute($route)

@@ -180,7 +180,7 @@ class Sample extends BaseController
 
     public function error()
     {
-        abort(404);
+        abort(404, 'Page not found');
     }
 
     public function test()
