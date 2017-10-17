@@ -3,6 +3,7 @@
 namespace System\Routing;
 
 use System\Http\Exceptions\NotFoundHttpException;
+use System\Http\Request;
 use System\View\View;
 
 use Closure;
@@ -56,6 +57,20 @@ class Router2
     );
 
 
+    /**
+     * Get a Events Dispatcher instance.
+     *
+     * @return \System\Routing\Router
+     */
+    public static function getInstance()
+    {
+        if (isset(static::$instance)) {
+            return static::$instance;
+        }
+
+        return static::$instance = new static();
+    }
+
     protected function any($route, $action)
     {
         $methods = array('GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD');
@@ -80,11 +95,11 @@ class Router2
         }
     }
 
-    protected function dispatch()
+    protected function dispatch(Request $request)
     {
-        $method = $_SERVER['REQUEST_METHOD'];
+        $method = $request->method();
 
-        $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';
+        $path = $request->path();
 
         // Get the routes by HTTP method.
         $routes = isset($this->routes[$method]) ? $this->routes[$method] : array();
@@ -141,25 +156,14 @@ class Router2
         return $instance->callAction($method, $parameters);
     }
 
-    public static function getInstance()
+    public function __call($method, $parameters)
     {
-        if (isset(static::$instance)) {
-            return static::$instance;
-        }
-
-        return static::$instance = new static();
-    }
-
-    public static function __callStatic($method, $parameters)
-    {
-        $instance = static::getInstance();
-
-        if (array_key_exists($key = strtoupper($method), $instance->routes)) {
+        if (array_key_exists($key = strtoupper($method), $this->routes)) {
             array_unshift($parameters, array($key));
 
             $method = 'match';
         }
 
-        return call_user_func_array(array($instance, $method), $parameters);
+        return call_user_func_array(array($this, $method), $parameters);
     }
 }
