@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use System\Routing\Controller;
+use System\Http\Response;
 use System\View\View;
 
 use BadMethodCallException;
@@ -48,7 +49,11 @@ class BaseController extends Controller
         if (($response instanceof View) && ! empty($this->layout)) {
             $view = 'Layouts/' .$this->layout;
 
-            return View::make($view, array('content' => $response))->render();
+            $response = View::make($view, array('content' => $response))->render();
+        }
+
+        if (! $response instanceof Response) {
+            $response = new Response($response);
         }
 
         return $response;
