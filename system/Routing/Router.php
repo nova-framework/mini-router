@@ -94,9 +94,9 @@ class Router
         $routes = isset($this->routes[$method]) ? $this->routes[$method] : array();
 
         foreach ($routes as $route => $action) {
-            $patterns = isset($action['where']) ? $action['where'] : array();
+            $wheres = isset($action['where']) ? $action['where'] : array();
 
-            $pattern = $this->compileRoute($route, array_merge($this->patterns, $patterns));
+            $pattern = $this->compileRoute($route, array_merge($this->patterns, $wheres));
 
             if (preg_match($pattern, $path, $matches) !== 1) {
                 continue;
