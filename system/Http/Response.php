@@ -68,7 +68,7 @@ class Response
     );
 
 
-    protected function __construct($content = '', $status = 200, array $headers = array())
+    public function __construct($content = '', $status = 200, array $headers = array())
     {
         if (isset(self::$statuses[$status])) {
             $this->status = $status;
@@ -99,7 +99,7 @@ class Response
     {
         $content = $this->content();
 
-        if ((is_object($content) && method_exists($content, '__toString')) {
+        if (is_object($content) && method_exists($content, '__toString')) {
             $content = $content->__toString();
         } else {
             $content = (string) $content;
