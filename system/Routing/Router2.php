@@ -71,14 +71,14 @@ class Router2
         return static::$instance = new static();
     }
 
-    protected function any($route, $action)
+    public function any($route, $action)
     {
         $methods = array('GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD');
 
         return $this->match($methods, $route, $action);
     }
 
-    protected function match(array $methods, $route, $action)
+    public function match(array $methods, $route, $action)
     {
         $methods = array_map('strtoupper', $methods);
 
@@ -95,7 +95,7 @@ class Router2
         }
     }
 
-    protected function dispatch(Request $request)
+    public function dispatch(Request $request)
     {
         $method = $request->method();
 
