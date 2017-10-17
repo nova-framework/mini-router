@@ -19,7 +19,7 @@ define('APPPATH', BASEPATH .'app' .DS);
 require BASEPATH .'vendor' .DS .'autoload.php';
 
 //--------------------------------------------------------------------------
-// Bootstrap The Application
+// Start The Application
 //--------------------------------------------------------------------------
 
-require APPPATH .'Bootstrap.php';
+require APPPATH .'Start.php';
