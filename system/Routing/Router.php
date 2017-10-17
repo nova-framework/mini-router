@@ -3,6 +3,7 @@
 namespace System\Routing;
 
 use System\Http\Exceptions\NotFoundHttpException;
+use System\Http\Request;
 use System\View\View;
 
 use Closure;
@@ -83,11 +84,11 @@ class Router
         }
     }
 
-    public function dispatch()
+    public function dispatch(Request $request)
     {
-        $method = $_SERVER['REQUEST_METHOD'];
+        $method = $request->method();
 
-        $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';
+        $path = $request->path();
 
         // Get the routes by HTTP method.
         $routes = isset($this->routes[$method]) ? $this->routes[$method] : array();

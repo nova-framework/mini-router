@@ -2,6 +2,7 @@
 
 use System\Config\Config;
 use System\Foundation\AliasLoader;
+use System\Http\Request;
 use System\Routing\Router;
 
 use App\Exceptions\Handler as ExceptionHandler;
@@ -52,8 +53,10 @@ $router = Router::getInstance();
 // Load the routes.
 require APPPATH .'Routes.php';
 
+$request = Request::getInstance();
+
 // Dispatch the request.
-$response = $router->dispatch();
+$response = $router->dispatch($request);
 
 // Display the response.
 echo $response;
