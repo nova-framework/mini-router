@@ -20,23 +20,6 @@ function abort($code = 404, $message = null)
 /**
  * Abort the Application with an HttpRedirectException.
  *
- * @param string  $url
- * @param int  code
- * @param string  $message
- * @return void
- */
-function redirect_to($url, $fullPath = false, $code = 301, $message = null)
-{
-    if (! $fullPath) {
-        $url = site_url($url);
-    }
-
-    throw new HttpRedirectException($url, $code, $message);
-}
-
-/**
- * Abort the Application with an HttpRedirectException.
- *
  * @param int  code
  * @param string  $message
  * @return void

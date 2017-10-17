@@ -2,7 +2,7 @@
 
 namespace System\Database;
 
-use System\Database\Manager as DB;
+use System\Database\Manager;
 
 
 class Model
@@ -171,7 +171,7 @@ class Model
      */
     public function getConnection()
     {
-        return DB::connection($this->connection);
+        return Manager::getInstance()->connection($this->connection);
     }
 
     /**

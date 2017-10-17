@@ -32,6 +32,7 @@ return array(
         // Facades
         'DB'       => 'System\Support\Facades\DB',
         'Event'    => 'System\Support\Facades\Event',
+        'Redirect' => 'System\Support\Facades\Redirect',
         'Request'  => 'System\Support\Facades\Request',
         'Response' => 'System\Support\Facades\Response',
         'Route'    => 'System\Support\Facades\Route',

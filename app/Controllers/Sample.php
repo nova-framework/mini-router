@@ -8,6 +8,7 @@ use App\Controllers\BaseController;
 use App\Models\Users;
 
 use DB;
+use Redirect;
 
 
 class Sample extends BaseController
@@ -187,7 +188,7 @@ class Sample extends BaseController
 
     public function test()
     {
-        redirect_to('database');
+        Redirect::to('database');
     }
 
     public function request()
