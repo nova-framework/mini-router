@@ -10,30 +10,46 @@ use Exception;
 
 class Manager
 {
+    protected static $instance;
+
     /**
      * The Connection instances.
      *
      * @var \System\Database\Connection[]
      */
-    protected static $instances = array();
+    protected $instances = array();
 
 
-    public static function connection($name = 'default')
+    /**
+     * Get a Events Dispatcher instance.
+     *
+     * @return \System\Database\Manager
+     */
+    public static function getInstance()
     {
-        if (isset(static::$instances[$name])) {
-            return static::$instances[$name];
+        if (isset(static::$instance)) {
+            return static::$instance;
+        }
+
+        return static::$instance = new static();
+    }
+
+    public function connection($name = 'default')
+    {
+        if (isset($this->instances[$name])) {
+            return $this->instances[$name];
         }
 
         if (is_null($config = Config::get('database.' .$name))) {
             throw new Exception("Connection [$name] is not defined in configuration");
         }
 
-        return static::$instances[$name] = new Connection($config);
+        return $this->instances[$name] = new Connection($config);
     }
 
-    public static function __callStatic($method, $parameters)
+    public function __call($method, $parameters)
     {
-        $instance = static::connection();
+        $instance = $this->connection();
 
         return call_user_func_array(array($instance, $method), $parameters);
     }

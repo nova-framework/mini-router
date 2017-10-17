@@ -26,10 +26,14 @@ return array(
      * The registered Class Aliases.
      */
     'aliases' => array(
-        'Config' => 'System\Config\Config',
-        'DB'     => 'System\Database\Manager',
-        'Event'  => 'System\Events\Facade',
-        'Route'  => 'System\Routing\Router',
-        'View'   => 'System\View\View',
+        'Config'   => 'System\Config\Config',
+        'Route'    => 'System\Routing\Router',
+        'View'     => 'System\View\View',
+
+        // Facades
+        'DB'       => 'System\Support\Facades\DB',
+        'Event'    => 'System\Support\Facades\Event',
+        'Request'  => 'System\Support\Facades\Request',
+        'Response' => 'System\Support\Facades\Response',
     ),
 );

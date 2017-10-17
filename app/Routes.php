@@ -13,7 +13,7 @@ Route::get('/',        'App\Controllers\Sample@index');
 Route::get('database', 'App\Controllers\Sample@database');
 Route::get('error',    'App\Controllers\Sample@error');
 Route::get('test',     'App\Controllers\Sample@test');
-
+Route::get('request',  'App\Controllers\Sample@request');
 
 Route::get('pages/{page?}', 'App\Controllers\Sample@page');
 //Route::get('pages/(:any?)', 'App\Controllers\Sample@page');

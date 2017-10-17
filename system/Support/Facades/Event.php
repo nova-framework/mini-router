@@ -1,11 +1,11 @@
 <?php
 
-namespace System\Events;
+namespace System\Support\Facades;
 
 use System\Events\Dispatcher;
 
 
-class Facade
+class Event
 {
 
     public static function __callStatic($method, $parameters)

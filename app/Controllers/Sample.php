@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use System\Support\Facades\Request;
+
 use App\Controllers\BaseController;
 use App\Models\Users;
 
@@ -186,5 +188,22 @@ class Sample extends BaseController
     public function test()
     {
         redirect_to('database');
+    }
+
+    public function request()
+    {
+        $content = '';
+
+        //
+        $request = Request::instance();
+
+        $content .= '<pre>' .var_export($request->method(), true) .'</pre>';
+        $content .= '<pre>' .var_export($request->path(), true) .'</pre>';
+
+        $content .= '<pre>' .var_export($request, true) .'</pre>';
+
+
+        return $this->createView(compact('content'), 'Index')
+            ->shares('title', 'HTTP Request');
     }
 }
