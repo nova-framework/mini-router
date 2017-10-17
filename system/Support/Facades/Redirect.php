@@ -13,17 +13,17 @@ class Redirect
     {
         $url = site_url($path);
 
-        return static::createResponse($url, $status, $headers);
+        return static::createRedirectResponse($url, $status, $headers);
     }
 
     public static function back($status = 302, array $headers = array())
     {
         $url = Request::previous() ?: site_url();
 
-        return static::createResponse($url, $status, $headers);
+        return static::createRedirectResponse($url, $status, $headers);
     }
 
-    protected static function createResponse($url, $status, $headers)
+    protected static function createRedirectResponse($url, $status, $headers)
     {
         $content = '
 <html>
@@ -32,7 +32,7 @@ class Redirect
 </body>
 </html>';
 
-        $hearders['Location'] = $url;
+        $headers['Location'] = $url;
 
         return new HttpResponse($content, $status, $headers);
     }
