@@ -45,7 +45,7 @@ ExceptionHandler::initialize();
 // Initialize the Aliases Loader.
 AliasLoader::initialize();
 
-// Load the local bootstrap.
+// Execute the bootstrap.
 require APPPATH .'Bootstrap.php';
 
 //--------------------------------------------------------------------------
