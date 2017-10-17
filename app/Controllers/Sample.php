@@ -188,7 +188,7 @@ class Sample extends BaseController
 
     public function test()
     {
-        Redirect::to('database');
+        return Redirect::to('database');
     }
 
     public function request()
