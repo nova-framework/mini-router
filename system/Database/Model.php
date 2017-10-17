@@ -165,13 +165,15 @@ class Model
     }
 
     /**
-     * Get the database Connection instance.
+     * Get the Connection instance.
      *
      * @return \System\Database\Connection
      */
     public function getConnection()
     {
-        return Manager::getInstance()->connection($this->connection);
+        $manager = Manager::getInstance();
+
+        return $manager->connection($this->connection);
     }
 
     /**
