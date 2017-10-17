@@ -47,12 +47,12 @@ class BaseController extends Controller
     protected function after($response)
     {
         if (($response instanceof View) && ! empty($this->layout)) {
-            $view = 'Layouts/' .$this->layout;
+            $layout = 'Layouts/' .$this->layout;
 
-            $response = View::make($view, array('content' => $response))->render();
-        }
+            $view = View::make($layout, array('content' => $response));
 
-        if (! $response instanceof Response) {
+            return new Response($view->render(), 200);
+        } else if (! $response instanceof Response) {
             $response = new Response($response);
         }
 
