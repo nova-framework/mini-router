@@ -3,6 +3,7 @@
 namespace System\Support\Facades;
 
 use System\Http\Response as HttpResponse;
+use System\Support\Facades\Request;
 
 
 class Redirect
@@ -17,7 +18,7 @@ class Redirect
 
     public static function back($status = 302, array $headers = array())
     {
-        $url = ! empty($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : site_url();
+        $url = Request::previous() ?: site_url();
 
         return static::createResponse($url, $status, $headers);
     }

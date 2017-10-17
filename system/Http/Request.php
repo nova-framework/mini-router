@@ -87,42 +87,47 @@ class Request
         return false;
     }
 
-    public static function input($key, $default = null)
+    public function previous()
+    {
+        return array_get($this->server, 'HTTP_REFERER');
+    }
+
+    public function input($key, $default = null)
     {
         return array_get(array_merge($this->get, $this->post), $key, $default);
     }
 
-    public static function file($key)
+    public function file($key)
     {
         return array_get($this->files, $key);
     }
 
-    public static function cookie($key, $default = null)
+    public function cookie($key, $default = null)
     {
         return array_get($this->cookies, $key, $default);
     }
 
-    public static function get()
+    public function get()
     {
         return $this->get;
     }
 
-    public static function post()
+    public function post()
     {
         return $this->post;
     }
 
-    public static function files()
+    public function files()
     {
         return $this->files;
     }
 
-    public static function cookies()
+    public function cookies()
     {
         return $this->cookies;
     }
 
-    public static function server($key = null)
+    public function server($key = null)
     {
         if (is_null($key)) {
             return $this->server;
@@ -131,7 +136,7 @@ class Request
         return array_get($this->server, $key);
     }
 
-    public static function hasFile($key)
+    public function hasFile($key)
     {
         return array_has($this->files, $key);
     }
