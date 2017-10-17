@@ -41,14 +41,28 @@ class Router
     protected $patterns = array();
 
 
-    protected function any($route, $action)
+    /**
+     * Get a Events Dispatcher instance.
+     *
+     * @return \System\Routing\Router
+     */
+    public static function getInstance()
+    {
+        if (isset(static::$instance)) {
+            return static::$instance;
+        }
+
+        return static::$instance = new static();
+    }
+
+    public function any($route, $action)
     {
         $methods = array('GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD');
 
         return $this->match($methods, $route, $action);
     }
 
-    protected function match(array $methods, $route, $action)
+    public function match(array $methods, $route, $action)
     {
         $methods = array_map('strtoupper', $methods);
 
@@ -69,7 +83,7 @@ class Router
         }
     }
 
-    protected function dispatch()
+    public function dispatch()
     {
         $method = $_SERVER['REQUEST_METHOD'];
 
@@ -167,30 +181,19 @@ class Router
         return $instance->callAction($method, $parameters);
     }
 
-    protected function pattern($key, $pattern)
+    public function pattern($key, $pattern)
     {
         $this->patterns[$key] = $pattern;
     }
 
-    public static function getInstance()
+    public function __call($method, $parameters)
     {
-        if (isset(static::$instance)) {
-            return static::$instance;
-        }
-
-        return static::$instance = new static();
-    }
-
-    public static function __callStatic($method, $parameters)
-    {
-        $instance = static::getInstance();
-
-        if (array_key_exists($key = strtoupper($method), $instance->routes)) {
+        if (array_key_exists($key = strtoupper($method), $this->routes)) {
             array_unshift($parameters, array($key));
 
             $method = 'match';
         }
 
-        return call_user_func_array(array($instance, $method), $parameters);
+        return call_user_func_array(array($this, $method), $parameters);
     }
 }

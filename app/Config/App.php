@@ -27,7 +27,6 @@ return array(
      */
     'aliases' => array(
         'Config'   => 'System\Config\Config',
-        'Route'    => 'System\Routing\Router',
         'View'     => 'System\View\View',
 
         // Facades
@@ -35,5 +34,6 @@ return array(
         'Event'    => 'System\Support\Facades\Event',
         'Request'  => 'System\Support\Facades\Request',
         'Response' => 'System\Support\Facades\Response',
+        'Route'    => 'System\Support\Facades\Route',
     ),
 );

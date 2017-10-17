@@ -43,14 +43,17 @@ ExceptionHandler::initialize();
 // Initialize the Aliases Loader.
 AliasLoader::initialize();
 
-// Load the Routes.
+//--------------------------------------------------------------------------
+// Route the HTTP Request
+//--------------------------------------------------------------------------
+
+$router = Router::getInstance();
+
+// Load the routes.
 require APPPATH .'Routes.php';
 
-//--------------------------------------------------------------------------
-// Dispatch the HTTP Request
-//--------------------------------------------------------------------------
-
-$response = Router::dispatch();
+// Dispatch the request.
+$response = $router->dispatch();
 
 // Display the response.
 echo $response;
