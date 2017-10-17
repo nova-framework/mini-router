@@ -186,7 +186,7 @@ class Sample extends BaseController
         abort(404, 'Page not found');
     }
 
-    public function test()
+    public function redirect()
     {
         return Redirect::to('database');
     }
