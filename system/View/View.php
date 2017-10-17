@@ -44,6 +44,20 @@ class View
     }
 
     /**
+     * Returns true if the specified View exists.
+     *
+     * @param mixed $view
+     *
+     * @return bool
+     */
+    public static function exists($view)
+    {
+        $path = APPPATH .str_replace('/', DS, "Views/${view}.php");
+
+        return is_readable($path);
+    }
+
+    /**
      * Get a View instance.
      *
      * @param mixed $view

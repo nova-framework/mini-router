@@ -52,13 +52,15 @@ class Handler extends BaseHandler
         if ($e instanceof HttpException) {
             $code = $e->getStatusCode();
 
-            $view = View::make('Layouts/Default')
-                ->shares('title', 'Error ' .$code)
-                ->nest('content', 'Errors/' .$code, array('exception' => $e));
+            if (View::exists('Errors/' .$code)) {
+                $view = View::make('Layouts/Default')
+                    ->shares('title', 'Error ' .$code)
+                    ->nest('content', 'Errors/' .$code, array('exception' => $e));
 
-            echo $view->render();
+                echo $view->render();
 
-            return;
+                return;
+            }
         }
 
         parent::render($e);
